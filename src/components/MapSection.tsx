@@ -25,9 +25,87 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
   const [activeProperty, setActiveProperty] = useState<Property | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
   const markersRef = useRef<any[]>([])
+  const [mapReady, setMapReady] = useState<boolean>(false)
   const infoWindowRef = useRef<any | null>(null)
   const closeTimeoutRef = useRef<number | null>(null)
-  const [mapReady, setMapReady] = useState<boolean>(false)
+  const domReadyListenerRef = useRef<any | null>(null)
+
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
+  }
+
+  const startCloseTimeout = (delay = 350) => {
+    clearCloseTimeout()
+    // store numeric id from window.setTimeout
+    // TypeScript in browser returns number
+    closeTimeoutRef.current = window.setTimeout(() => {
+      try { infoWindowRef.current?.close() } catch (e) {}
+      closeTimeoutRef.current = null
+    }, delay) as unknown as number
+  }
+
+  const showInfoWindow = (marker: any, property: Property) => {
+    try {
+      if (!infoWindowRef.current) infoWindowRef.current = new window.google.maps.InfoWindow({ maxWidth: 300 })
+
+      const container = document.createElement('div')
+      container.style.padding = '8px'
+      container.style.maxWidth = '260px'
+
+      const title = document.createElement('div')
+      title.style.fontWeight = '700'
+      title.style.marginBottom = '6px'
+      // make the title use the same dark color as the rent/meta text
+      title.style.color = '#111827'
+      title.textContent = property.title
+
+      const meta = document.createElement('div')
+      // keep rent/meta dark to match title
+      meta.style.color = '#111827'
+      meta.style.marginBottom = '8px'
+      meta.textContent = `${property.price} €/mo • ${property.sqm} m²`
+
+      const btn = document.createElement('button')
+      btn.textContent = 'Interested ? Get an offer'
+      btn.className = 'px-3 py-2 bg-pink-600 text-white rounded-md text-sm'
+      btn.style.background = 'linear-gradient(90deg,#ff5fa2,#9b6bff)'
+      btn.style.cursor = 'pointer'
+      btn.onclick = (e) => { e.stopPropagation(); if (onRequestOffer) onRequestOffer(property) }
+
+      container.appendChild(title)
+      container.appendChild(meta)
+      container.appendChild(btn)
+
+      // ensure previous domready listener does not leak
+      try { if (domReadyListenerRef.current && infoWindowRef.current) { window.google.maps.event.removeListener(domReadyListenerRef.current); domReadyListenerRef.current = null } } catch (e) {}
+
+      infoWindowRef.current.setContent(container)
+      infoWindowRef.current.open(googleMapRef.current, marker)
+      clearCloseTimeout()
+
+      // Attach domready once to wire mouseenter/mouseleave on the visible wrapper
+      domReadyListenerRef.current = window.google.maps.event.addListenerOnce(infoWindowRef.current, 'domready', () => {
+        try {
+          // Google creates a wrapper element for the InfoWindow content with class 'gm-style-iw'
+          // Find the closest such element and attach listeners so it stays open while hovered.
+          const wrappers = document.getElementsByClassName('gm-style-iw')
+          if (wrappers && wrappers.length) {
+            const wrapper = wrappers[wrappers.length - 1] as HTMLElement
+            wrapper.style.pointerEvents = 'auto'
+            wrapper.addEventListener('mouseenter', () => clearCloseTimeout())
+            wrapper.addEventListener('mouseleave', () => startCloseTimeout(250))
+          }
+        } catch (e) {
+          // ignore DOM errors
+        }
+      })
+    } catch (e) {
+      // fail silently
+    }
+  }
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
@@ -143,71 +221,9 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
           },
           animation: window.google.maps.Animation.DROP,
         })
-
         marker.addListener('click', () => setActiveProperty(property))
-
-        // hover -> show info window with CTA
-        marker.addListener('mouseover', () => {
-          try {
-            if (!infoWindowRef.current) infoWindowRef.current = new window.google.maps.InfoWindow()
-            if (closeTimeoutRef.current) { window.clearTimeout(closeTimeoutRef.current); closeTimeoutRef.current = null }
-
-            const container = document.createElement('div')
-            container.style.maxWidth = '320px'
-            container.style.padding = '12px'
-            container.style.borderRadius = '12px'
-            container.style.background = '#6b7280'
-            container.style.color = '#f3f4f6'
-
-            const titleEl = document.createElement('div')
-            titleEl.style.fontWeight = '700'
-            titleEl.style.marginBottom = '6px'
-            titleEl.textContent = property.title
-            container.appendChild(titleEl)
-
-            const meta = document.createElement('div')
-            meta.style.fontSize = '13px'
-            meta.style.color = '#e5e7eb'
-            meta.textContent = `${property.price} €/mo${property.sqm ? ` • ${property.sqm} m²` : ''}`
-            container.appendChild(meta)
-
-            const footer = document.createElement('div')
-            footer.style.display = 'flex'
-            footer.style.justifyContent = 'flex-end'
-            footer.style.marginTop = '10px'
-
-            const cta = document.createElement('button')
-            cta.textContent = 'Interested? Get an offer'
-            cta.style.border = 'none'
-            cta.style.padding = '8px 10px'
-            cta.style.borderRadius = '10px'
-            cta.style.cursor = 'pointer'
-            cta.style.background = 'linear-gradient(90deg,#ff5fa2,#9b6bff)'
-            cta.style.color = '#fff'
-            cta.addEventListener('click', (e) => {
-              e.stopPropagation()
-              try { if (infoWindowRef.current) infoWindowRef.current.close() } catch (err) {}
-              if (typeof onRequestOffer === 'function') onRequestOffer(property)
-            })
-
-            footer.appendChild(cta)
-            container.appendChild(footer)
-
-            container.addEventListener('mouseenter', () => { if (closeTimeoutRef.current) { window.clearTimeout(closeTimeoutRef.current); closeTimeoutRef.current = null } })
-            container.addEventListener('mouseleave', () => { if (closeTimeoutRef.current) window.clearTimeout(closeTimeoutRef.current); closeTimeoutRef.current = window.setTimeout(() => { try { if (infoWindowRef.current) infoWindowRef.current.close() } catch (e) {} closeTimeoutRef.current = null }, 350) })
-
-            infoWindowRef.current.setContent(container)
-            infoWindowRef.current.open(map, marker)
-          } catch (e) {
-            // ignore
-          }
-        })
-
-        marker.addListener('mouseout', () => {
-          if (closeTimeoutRef.current) window.clearTimeout(closeTimeoutRef.current)
-          closeTimeoutRef.current = window.setTimeout(() => { try { if (infoWindowRef.current) infoWindowRef.current.close() } catch (e) {} closeTimeoutRef.current = null }, 350)
-        })
-
+        marker.addListener('mouseover', () => { try { showInfoWindow(marker, property) } catch (e) {} })
+        marker.addListener('mouseout', () => { startCloseTimeout(250) })
         markersRef.current.push(marker)
         continue
       }
@@ -253,6 +269,8 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
         })
 
         marker.addListener('click', () => setActiveProperty(property))
+        marker.addListener('mouseover', () => { try { showInfoWindow(marker, property) } catch (e) {} })
+        marker.addListener('mouseout', () => { startCloseTimeout(250) })
         markersRef.current.push(marker)
       }
     }
@@ -279,6 +297,7 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
       })
 
       googleMapRef.current = map
+      infoWindowRef.current = new window.google.maps.InfoWindow({ maxWidth: 300 })
       renderMarkers(map, properties || [])
       setMapReady(true)
     } catch (e) {

@@ -32,6 +32,54 @@ export default function HomePage() {
   const [pageSize, setPageSize] = useState<number>(20)
   const [lastQuery, setLastQuery] = useState<any | null>(null)
 
+  // Mock properties (temporary fallback while API is unavailable)
+  const MOCK_PROPERTIES: Property[] = [
+    {
+      id: 'mock-1',
+      title: 'Sunny 1BR near Marienplatz',
+      lat: 48.1371,
+      lng: 11.5754,
+      price: 850,
+      sqm: 35,
+      equityPercentage: 5,
+      studentOwnershipPercentage: 2,
+      rooms: 2,
+    },
+    {
+      id: 'mock-2',
+      title: 'Cozy 2BR Schwabing',
+      lat: 48.1500,
+      lng: 11.5800,
+      price: 1120,
+      sqm: 48,
+      equityPercentage: 6,
+      studentOwnershipPercentage: 3,
+      rooms: 3,
+    },
+    {
+      id: 'mock-3',
+      title: 'Bright studio near Ludwigstrasse',
+      lat: 48.1440,
+      lng: 11.5700,
+      price: 690,
+      sqm: 28,
+      equityPercentage: 4,
+      studentOwnershipPercentage: 1.5,
+      rooms: 1,
+    },
+    {
+      id: 'mock-4',
+      title: 'Large 3BR apartment',
+      lat: 48.1300,
+      lng: 11.5900,
+      price: 1450,
+      sqm: 78,
+      equityPercentage: 7,
+      studentOwnershipPercentage: 0.5,
+      rooms: 4,
+    },
+  ]
+
   async function handleComplete(res: any) {
     console.log('Selection result', res)
     try {
@@ -39,14 +87,9 @@ export default function HomePage() {
       // save the query so Load more can re-issue with page parameter
       setLastQuery(res)
       setCurrentPage(0)
-      const r = await fetch('/api/filter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...res, page: 0, size: pageSize }),
-      })
-      if (!r.ok) throw new Error('Filter service responded with ' + r.status)
-      const data = await r.json()
-      const results: Property[] = data.results || []
+      // Temporary: use mock data instead of calling the /api/filter endpoint.
+      // Replace this with the real fetch once the API is available again.
+      const results: Property[] = MOCK_PROPERTIES
       setListings(results)
       // signal the map to focus on the results
       setFocusKey(Date.now())
@@ -75,15 +118,9 @@ export default function HomePage() {
     const next = currentPage + 1
     try {
       setFilterLoading(true)
-      const r = await fetch('/api/filter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...lastQuery, page: next, size: pageSize }),
-      })
-      if (!r.ok) throw new Error('Filter service responded with ' + r.status)
-      const data = await r.json()
-      const results: Property[] = data.results || []
-      setListings(results)
+      // Temporary: paginate through mock data by cycling or slicing
+      // Here we'll simply rotate to the same mock set for development.
+      setListings(MOCK_PROPERTIES)
       setCurrentPage(next)
       setFocusKey(Date.now())
     } catch (err) {
@@ -120,7 +157,14 @@ export default function HomePage() {
       <div className="w-full max-w-6xl">
         <div data-map-root>
           {showMap ? (
-            <MapSection city="Munich" properties={listings || []} focusKey={focusKey ?? undefined} loading={filterLoading} onLoadMore={loadMore} />
+            <MapSection
+              city="Munich"
+              properties={listings || []}
+              focusKey={focusKey ?? undefined}
+              loading={filterLoading}
+              onLoadMore={loadMore}
+              onRequestOffer={(p) => { setOfferProperty(p); setIsPopupOpen(true) }}
+            />
           ) : (
             <InfoSection
               title="Find matching properties"
