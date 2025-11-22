@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { useParty } from "../contexts/PartyContext";
+import { MapSection } from "../components/MapSection";
 
 export default function HomePage() {
-  const { currentTable, currentParty, partyName} = useParty();
+  const { currentTable, currentParty, partyName } = useParty();
 
   useEffect(() => {
     console.log("Current Party Info:", {
@@ -15,12 +16,16 @@ export default function HomePage() {
   }, [currentTable, currentParty, partyName]);
 
   return (
-    <main className="flex items-center justify-center p-4">
+    <main className="flex flex-col items-center justify-center p-4 gap-8">
       <div className="text-center">
         <h1 className="text-4xl font-bold font-serif">Welcome to Rent2Own</h1>
         <p className="mt-4 text-lg">
           where every payment brings you home!
         </p>
+      </div>
+
+      <div className="w-full max-w-6xl">
+        <MapSection city="Munich" />
       </div>
     </main>
   );
