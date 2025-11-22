@@ -87,10 +87,21 @@ export default function HomePage() {
       // save the query so Load more can re-issue with page parameter
       setLastQuery(res)
       setCurrentPage(0)
-      // Temporary: use mock data instead of calling the /api/filter endpoint.
-      // Replace this with the real fetch once the API is available again.
-      const results: Property[] = MOCK_PROPERTIES
-      setListings(results)
+      // Call the real filter API; if it fails, fall back to MOCK_PROPERTIES.
+      try {
+        const r = await fetch('/api/filter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...res, page: 0, size: pageSize }),
+        })
+        if (!r.ok) throw new Error('Filter service responded with ' + r.status)
+        const data = await r.json()
+        const results: Property[] = data.results || []
+        setListings(results)
+      } catch (fetchErr) {
+        console.warn('Filter API failed, falling back to MOCK_PROPERTIES', fetchErr)
+        setListings(MOCK_PROPERTIES)
+      }
       // signal the map to focus on the results
       setFocusKey(Date.now())
       // scroll the page so the map is visible (align map to top of viewport)
@@ -118,11 +129,25 @@ export default function HomePage() {
     const next = currentPage + 1
     try {
       setFilterLoading(true)
-      // Temporary: paginate through mock data by cycling or slicing
-      // Here we'll simply rotate to the same mock set for development.
-      setListings(MOCK_PROPERTIES)
-      setCurrentPage(next)
-      setFocusKey(Date.now())
+      // Call the real filter API for pagination; fall back to mocks on error.
+      try {
+        const r = await fetch('/api/filter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...lastQuery, page: next, size: pageSize }),
+        })
+        if (!r.ok) throw new Error('Filter service responded with ' + r.status)
+        const data = await r.json()
+        const results: Property[] = data.results || []
+        setListings(results)
+        setCurrentPage(next)
+        setFocusKey(Date.now())
+      } catch (fetchErr) {
+        console.warn('Load more API failed, falling back to MOCK_PROPERTIES', fetchErr)
+        setListings(MOCK_PROPERTIES)
+        setCurrentPage(next)
+        setFocusKey(Date.now())
+      }
     } catch (err) {
       console.error('loadMore error', err)
     } finally {
