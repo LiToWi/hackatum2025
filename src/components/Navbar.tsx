@@ -28,7 +28,7 @@ export default function Navbar() {
         {/* Left: Logo */}
         <Link href="/" className="flex items-center text-2xl font-bold tracking-tight hover:text-blue-600 transition">
           <span className="h-12 w-12 mr-2 relative">
-            <Image src="/logo2.jpeg" alt="Logo" fill className="object-contain" />
+            <Image src="/output.svg" alt="Logo" fill className="object-contain" />
           </span>
           Rent2Own
         </Link>
