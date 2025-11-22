@@ -26,22 +26,22 @@ export default function Navbar() {
     <nav className="w-full bg-gray-900 text-white shadow-md sticky top-0 z-50">
       <div className="flex h-16 items-center justify-between px-4 w-full">
         {/* Left: Logo */}
-        <Link href="/" className="flex items-center text-2xl font-bold tracking-tight hover:text-blue-600 transition">
+        <Link href="/" className="flex items-center text-2xl font-bold tracking-tight hover-gradient-pink-purple transition">
           <span className="h-12 w-12 mr-2 relative">
-            <Image src="/logo2.jpeg" alt="Logo" fill className="object-contain" />
+            <Image src="/output2.svg" alt="Logo" fill className="object-contain" />
           </span>
-          Rent2Own
+          {/*<span className="hover-gradient-pink-purple transition">rent2own</span>*/}
         </Link>
         {/* Center + Right group */}
         <div className="flex items-center space-x-8 ml-auto">
           {/* Nav Links */}
           <div className="hidden md:flex space-x-8 text-md font-medium">
-            <Link href="/" className="hover:text-blue-600 transition">Home</Link>
+            <Link href="/" className="hover-gradient-pink-purple transition">Home</Link>
             {session && (
-              <Link href="/dashboard/user" className="hover:text-blue-600 transition">Dashboard</Link>
+              <Link href="/dashboard/user" className="hover-gradient-pink-purple transition">Dashboard</Link>
             )}
             {session && (
-                <Link href={`/tables/${session.user?.name}`} className="hover:text-blue-600 transition">My Party</Link>
+                <Link href={`/tables/${session.user?.name}`} className="hover-gradient-pink-purple transition">My Party</Link>
             )}
           </div>
 
@@ -84,7 +84,7 @@ export default function Navbar() {
         <div className="md:hidden px-4 pb-4 space-y-2">
           <Link 
             href="/" 
-            className="block hover:text-blue-600 transition"
+            className="block hover-gradient-pink-purple transition"
             onClick={closeMobileMenu}
           >
             Home
@@ -93,7 +93,7 @@ export default function Navbar() {
           {session && (
             <Link 
               href="/dashboard/user" 
-              className="block hover:text-blue-600 transition"
+              className="block hover-gradient-pink-purple transition"
               onClick={closeMobileMenu}
             >
               Dashboard
@@ -102,7 +102,7 @@ export default function Navbar() {
           {session && (
             <Link 
               href={`/tables/${session.user?.name}`} 
-              className="hover:text-blue-600 transition"
+              className="hover-gradient-pink-purple transition"
               onClick={closeMobileMenu}
             >
               My Party

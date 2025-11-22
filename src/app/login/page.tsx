@@ -25,7 +25,7 @@ export default function LoginPage() {
         <div className="flex items-center justify-center min-h-screen">
             <form onSubmit={handleLogin} className="w-full max-w-md">
                 <input
-                    placeholder="Table Name"
+                    placeholder="Name"
                     value={name}
                     onChange={e => setName(e.target.value)}
                     className="block w-full mb-4 p-2 border rounded"
