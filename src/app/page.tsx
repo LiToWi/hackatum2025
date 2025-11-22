@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useParty } from "../contexts/PartyContext";
 import { MapSection } from "../components/MapSection";
+import SelectionWizard from "../components/SelectionWizard";
 
 export default function HomePage() {
   const { currentTable, currentParty, partyName } = useParty();
@@ -25,29 +26,7 @@ export default function HomePage() {
       </div>
         
       <div className="w-full max-w-2xl flex flex-col gap-6">
-        <div className="flex items-center gap-4">
-          <label className="text-lg font-semibold w-64">How long do you want to live there:</label>
-          <input 
-            type="number" 
-            min="0" 
-            max="100" 
-            step="1"
-            className="flex-1 px-6 py-2 border border-gray-400 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-            placeholder="Enter months..."
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <label className="text-lg font-semibold w-64">How many roommates do you want to have:</label>
-          <input 
-            type="number" 
-            min="0" 
-            max="100" 
-            step="1"
-            className="flex-1 px-6 py-2 border border-gray-400 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
-            placeholder="Enter amount..."
-          />
-        </div>
+        <SelectionWizard onComplete={(res) => console.log('Selection result', res)} />
       </div>
 
       <div className="w-full max-w-6xl">
