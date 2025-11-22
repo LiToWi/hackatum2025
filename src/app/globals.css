@@ -47,13 +47,24 @@ h1, h2, h3, h4, h5, h6 {
   /* keep background fixed so gradient appears statically */
   background-size: 100% 100%;
   background-position: 0% 0%;
+}
+
+/* Always-on gradient text (pink -> purple) */
+.text-gradient-pink-purple-with-underline {
+  background-image: linear-gradient(90deg, #ff5fa2 0%, #9b6bff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* keep background fixed so gradient appears statically */
+  background-size: 100% 100%;
+  background-position: 0% 0%;
   position: relative;
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 4px;
   border-bottom: 2px solid;
   border-image: linear-gradient(90deg, #ff5fa2 0%, #9b6bff 100%) 1;
-  padding-bottom: 2px;
+  padding-bottom: 1px;
 }
 
 /* Respect reduced motion: avoid animation shifts for users who prefer reduced motion */
