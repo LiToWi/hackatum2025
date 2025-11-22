@@ -11,7 +11,7 @@ export default function NotFound() {
           Sorry, we couldn&apos;t find the page you&apos;re looking for.<br />
           But we would love to help you find a home 😊
         </p>
-        <Link href="/" className="text-gradient-pink-purple underline decoration-white">Go find a home</Link>
+        <Link href="/" className="text-gradient-pink-purple-with-underline">Go find a home</Link>
       </div>
     </div>
   );
