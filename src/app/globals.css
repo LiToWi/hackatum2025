@@ -67,6 +67,24 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 1px;
 }
 
+.text-gradient-orange-purple {
+  background-image: linear-gradient(90deg, #D67F31 0%, #1ad0f0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* keep background fixed so gradient appears statically */
+  background-size: 100% 100%;
+  background-position: 0% 0%;
+}
+
+.orange {
+  color: #D67F31;
+}
+
+.blue {
+  color: #1ad0f0;
+}
+
 /* Respect reduced motion: avoid animation shifts for users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .hover-gradient-pink-purple,

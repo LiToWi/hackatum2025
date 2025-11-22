@@ -15,8 +15,12 @@ export type WizardResult = {
 
 export default function SelectionWizard({
   onComplete,
+  onBack,
+  exitOnBack,
 }: {
   onComplete?: (r: WizardResult) => void
+  onBack?: () => void
+  exitOnBack?: boolean
 }) {
   const [step, setStep] = useState(0)
   const [rentingMonths, setRentingMonths] = useState<number | ''>('')
@@ -63,7 +67,24 @@ export default function SelectionWizard({
   }
 
   function back() {
-    if (step > 0) setStep(step - 1)
+    // If parent asked to exit on any Back (e.g. map is visible), call onBack
+    // and still step the wizard back one step so when the parent shows the
+    // InfoSection the wizard is already one step earlier (e.g. from Summary -> ZIP).
+    if (exitOnBack && onBack) {
+      onBack()
+      if (step > 0) {
+        setStep(step - 1)
+      }
+      return
+    }
+
+    if (step > 0) {
+      setStep(step - 1)
+    } else {
+      // If we're on the first step and a parent provided an onBack handler,
+      // call it so the parent can react (for example, switch views).
+      if (onBack) onBack()
+    }
   }
 
   const totalSteps = steps.length
@@ -203,8 +224,8 @@ export default function SelectionWizard({
       <div className="mt-6 flex items-center justify-between">
         <button
           onClick={back}
-          disabled={step === 0}
-          className="px-4 py-2 rounded-lg bg-gray-700 text-gray-200 disabled:opacity-50"
+          type="button"
+          className="px-4 py-2 rounded-lg transition-colors bg-transparent text-pink-400 border border-pink-400 hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
         >
           Back
         </button>
