@@ -15,15 +15,18 @@ interface MapSectionProps {
   focusKey?: number | undefined
   loading?: boolean
   onLoadMore?: (() => void) | undefined
+  onRequestOffer?: (property: Property) => void
 }
 
-export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], focusKey, loading: apiLoading = false, onLoadMore }) => {
+export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], focusKey, loading: apiLoading = false, onLoadMore, onRequestOffer }) => {
   const mapRef = useRef<HTMLDivElement | null>(null)
   const googleMapRef = useRef<any | null>(null)
   const [mapLoading, setMapLoading] = useState(true)
   const [activeProperty, setActiveProperty] = useState<Property | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
   const markersRef = useRef<any[]>([])
+  const infoWindowRef = useRef<any | null>(null)
+  const closeTimeoutRef = useRef<number | null>(null)
   const [mapReady, setMapReady] = useState<boolean>(false)
 
   useEffect(() => {
@@ -127,6 +130,104 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
       })
 
       marker.addListener('click', () => setActiveProperty(property))
+
+      // hover -> show richer info window with CTA
+      marker.addListener('mouseover', () => {
+        try {
+          if (!infoWindowRef.current) infoWindowRef.current = new window.google.maps.InfoWindow()
+
+          // clear any pending close
+          if (closeTimeoutRef.current) {
+            window.clearTimeout(closeTimeoutRef.current)
+            closeTimeoutRef.current = null
+          }
+
+          const container = document.createElement('div')
+          container.style.maxWidth = '320px'
+          container.style.padding = '12px'
+          container.style.borderRadius = '12px'
+          container.style.background = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ? '#0f1720'
+            : '#6b7280'
+          container.style.boxShadow = '0 6px 20px rgba(0,0,0,0.25)'
+          container.style.color = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ? '#fff'
+            : '#f3f4f6'
+
+          const title = document.createElement('div')
+          title.style.fontWeight = '700'
+          title.style.marginBottom = '6px'
+          title.textContent = property.title
+          container.appendChild(title)
+
+          const meta = document.createElement('div')
+          meta.style.fontSize = '13px'
+          meta.style.color = '#e5e7eb'
+          meta.textContent = `${property.price} €/mo${property.sqm ? ` • ${property.sqm} m²` : ''}`
+          container.appendChild(meta)
+
+          if (property.rooms) {
+            const rooms = document.createElement('div')
+            rooms.style.fontSize = '13px'
+            rooms.style.color = '#6b7280'
+            rooms.textContent = `${property.rooms} rooms`
+            container.appendChild(rooms)
+          }
+
+          const footer = document.createElement('div')
+          footer.style.display = 'flex'
+          footer.style.justifyContent = 'flex-end'
+          footer.style.marginTop = '10px'
+
+          const cta = document.createElement('button')
+          cta.textContent = 'Interested? Get an offer'
+          cta.style.border = 'none'
+          cta.style.padding = '8px 10px'
+          cta.style.borderRadius = '10px'
+          cta.style.cursor = 'pointer'
+          cta.style.background = 'linear-gradient(90deg,#ff5fa2,#9b6bff)'
+          cta.style.color = '#fff'
+          cta.addEventListener('click', (e) => {
+            e.stopPropagation()
+            try { if (infoWindowRef.current) infoWindowRef.current.close() } catch (err) {}
+            if (typeof onRequestOffer === 'function') onRequestOffer(property)
+          })
+
+          footer.appendChild(cta)
+          container.appendChild(footer)
+
+          // when the mouse enters the info window, keep it open
+          container.addEventListener('mouseenter', () => {
+            if (closeTimeoutRef.current) {
+              window.clearTimeout(closeTimeoutRef.current)
+              closeTimeoutRef.current = null
+            }
+          })
+          // when leaving the info window, start close timeout
+          container.addEventListener('mouseleave', () => {
+            if (closeTimeoutRef.current) window.clearTimeout(closeTimeoutRef.current)
+            closeTimeoutRef.current = window.setTimeout(() => {
+              try { if (infoWindowRef.current) infoWindowRef.current.close() } catch (e) {}
+              closeTimeoutRef.current = null
+            }, 350)
+          })
+
+          infoWindowRef.current.setContent(container)
+          infoWindowRef.current.open(map, marker)
+        } catch (err) {
+          // ignore any DOM / projection errors
+        }
+      })
+
+      marker.addListener('mouseout', () => {
+        // start a short timeout so users can move cursor to the info window
+        if (closeTimeoutRef.current) window.clearTimeout(closeTimeoutRef.current)
+        closeTimeoutRef.current = window.setTimeout(() => {
+          try { if (infoWindowRef.current) infoWindowRef.current.close() } catch (e) {}
+          closeTimeoutRef.current = null
+        }, 350)
+      })
+
       markersRef.current.push(marker)
     })
   }
@@ -152,6 +253,12 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
       })
 
       googleMapRef.current = map
+      // create a reusable InfoWindow for hover/details
+      try {
+        infoWindowRef.current = new window.google.maps.InfoWindow()
+      } catch (e) {
+        // ignore if InfoWindow can't be constructed yet
+      }
       renderMarkers(map, properties || [])
       setMapReady(true)
     } catch (e) {
