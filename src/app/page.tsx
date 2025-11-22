@@ -44,6 +44,16 @@ export default function HomePage() {
       setListings(results)
       // signal the map to focus on the results
       setFocusKey(Date.now())
+      // scroll the page so the map is visible (align map to top of viewport)
+      setTimeout(() => {
+        try {
+          mapElRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          // attempt a small additional offset in case of sticky headers
+          setTimeout(() => { window.scrollBy(0, -24) }, 200)
+        } catch (e) {
+          // ignore
+        }
+      }, 300)
       setFilterLoading(false)
     } catch (err) {
       console.error('filter error', err)
@@ -91,7 +101,7 @@ export default function HomePage() {
       </div>
 
       <div className="w-full max-w-6xl">
-        <div data-map-root>
+            <div data-map-root ref={mapElRef}>
           <MapSection city="Munich" properties={listings || []} focusKey={focusKey ?? undefined} loading={filterLoading} onLoadMore={loadMore} />
         </div>
       </div>

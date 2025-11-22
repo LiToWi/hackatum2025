@@ -106,29 +106,89 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
   const renderMarkers = (map: any, propsToShow: Property[]) => {
     markersRef.current.forEach((m) => m.setMap(null))
     markersRef.current = []
-    propsToShow.forEach((property) => {
-      const pct = typeof property.studentOwnershipPercentage === 'number'
-        ? property.studentOwnershipPercentage
-        : (property.equityPercentage ?? 0)
+    if (!propsToShow || propsToShow.length === 0) return
 
-      const iconUrl = createMarkerIcon(Number(pct))
+    // Build simple spatial clusters by bucketing lat/lng to avoid stacked markers.
+    const buckets: Record<string, Property[]> = {}
+    const bucketSizeDeg = 0.0005 // ~55m; fine for city-level grouping
+    for (const p of propsToShow) {
+      const keyLat = Math.round(p.lat / bucketSizeDeg)
+      const keyLng = Math.round(p.lng / bucketSizeDeg)
+      const key = `${keyLat}:${keyLng}`
+      buckets[key] = buckets[key] || []
+      buckets[key].push(p)
+    }
 
-      const marker = new window.google.maps.Marker({
-        position: { lat: property.lat, lng: property.lng },
-        map,
-        title: property.title,
-        icon: {
-          url: iconUrl,
-          // bigger visual size for the larger SVG
-          scaledSize: new window.google.maps.Size(96, 112),
-          anchor: new window.google.maps.Point(48, 110),
-        },
-        animation: window.google.maps.Animation.DROP,
-      })
+    // For each bucket, if multiple properties exist, distribute them radially around
+    // their original locations so their percentage labels don't overlap.
+    for (const key of Object.keys(buckets)) {
+      const arr = buckets[key]
+      if (arr.length === 1) {
+        const property = arr[0]
+        const pct = typeof property.studentOwnershipPercentage === 'number'
+          ? property.studentOwnershipPercentage
+          : (property.equityPercentage ?? 0)
+        const iconUrl = createMarkerIcon(Number(pct))
+        const marker = new window.google.maps.Marker({
+          position: { lat: property.lat, lng: property.lng },
+          map,
+          title: property.title,
+          icon: {
+            url: iconUrl,
+            scaledSize: new window.google.maps.Size(96, 112),
+            anchor: new window.google.maps.Point(48, 110),
+          },
+          animation: window.google.maps.Animation.DROP,
+        })
+        marker.addListener('click', () => setActiveProperty(property))
+        markersRef.current.push(marker)
+        continue
+      }
 
-      marker.addListener('click', () => setActiveProperty(property))
-      markersRef.current.push(marker)
-    })
+      // Cluster has multiple properties — spread them around cluster centroid.
+      // Compute centroid
+      let sumLat = 0
+      let sumLng = 0
+      for (const p of arr) { sumLat += p.lat; sumLng += p.lng }
+      const centerLat = sumLat / arr.length
+      const centerLng = sumLng / arr.length
+
+      // radial separation in meters
+      const radiusMeters = 12
+      const metersToDegLat = (m: number) => m / 111320
+      for (let i = 0; i < arr.length; i++) {
+        const property = arr[i]
+        const angle = (2 * Math.PI * i) / arr.length
+        const dLat = Math.cos(angle) * metersToDegLat(radiusMeters)
+        // longitude degrees depend on latitude
+        const latRad = (centerLat * Math.PI) / 180
+        const metersToDegLng = (m: number) => m / (111320 * Math.cos(latRad))
+        const dLng = Math.sin(angle) * metersToDegLng(radiusMeters)
+
+        const placedLat = property.lat + dLat
+        const placedLng = property.lng + dLng
+
+        const pct = typeof property.studentOwnershipPercentage === 'number'
+          ? property.studentOwnershipPercentage
+          : (property.equityPercentage ?? 0)
+        const iconUrl = createMarkerIcon(Number(pct))
+
+        const marker = new window.google.maps.Marker({
+          position: { lat: placedLat, lng: placedLng },
+          map,
+          title: property.title,
+          icon: {
+            url: iconUrl,
+            scaledSize: new window.google.maps.Size(96, 112),
+            anchor: new window.google.maps.Point(48, 110),
+          },
+          animation: window.google.maps.Animation.DROP,
+        })
+
+        marker.addListener('click', () => setActiveProperty(property))
+        markersRef.current.push(marker)
+      }
+    }
   }
 
   const initMap = () => {
@@ -169,12 +229,40 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
   useEffect(() => {
     if (!mapReady) return
     if (!properties || properties.length === 0) return
-    const first = properties[0]
+    // Find the largest cluster and pan to its centroid
+    const bucketSizeDeg = 0.0005
+    const buckets: Record<string, Property[]> = {}
+    for (const p of properties) {
+      const keyLat = Math.round(p.lat / bucketSizeDeg)
+      const keyLng = Math.round(p.lng / bucketSizeDeg)
+      const key = `${keyLat}:${keyLng}`
+      buckets[key] = buckets[key] || []
+      buckets[key].push(p)
+    }
+
+    let bestKey: string | null = null
+    let bestSize = 0
+    for (const k of Object.keys(buckets)) {
+      if (buckets[k].length > bestSize) {
+        bestSize = buckets[k].length
+        bestKey = k
+      }
+    }
+
+    if (!bestKey) return
+    const cluster = buckets[bestKey]
+    let sumLat = 0
+    let sumLng = 0
+    for (const p of cluster) { sumLat += p.lat; sumLng += p.lng }
+    const centroidLat = sumLat / cluster.length
+    const centroidLng = sumLng / cluster.length
+
     try {
-      googleMapRef.current.panTo({ lat: first.lat, lng: first.lng })
-      googleMapRef.current.setZoom(15)
+      console.log('[MapSection] focusing cluster', { key: bestKey, size: cluster.length, centroidLat, centroidLng })
+      googleMapRef.current.panTo({ lat: centroidLat, lng: centroidLng })
+      googleMapRef.current.setZoom(14)
     } catch (e) {
-      // ignore
+      try { googleMapRef.current.setCenter({ lat: centroidLat, lng: centroidLng }) } catch (e2) {}
     }
   }, [mapReady, properties, focusKey])
 
