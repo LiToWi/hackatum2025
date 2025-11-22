@@ -53,13 +53,16 @@ async function fetchPage(payload: any, retries = 0): Promise<any> {
 
 import { simulateEdge, findOptimalEdge } from '../src/lib/calc'
 
-export async function fetchMunichRentRoomsSqm(options?: { size?: number; pages?: number }) {
+
+export async function fetchMunichRentRoomsSqm(options?: { size?: number; pages?: number; startFrom?: number }) {
 	const size = options?.size ?? (process.env.SIZE ? Number(process.env.SIZE) : 100)
 	const pages = options?.pages ?? (process.env.PAGES ? Number(process.env.PAGES) : 1)
+	// startFrom allows fetching a specific offset for pagination (default 0)
+	const startFrom = options?.startFrom ?? 0
 
 	const GEO = "München"
 
-	let from = 0
+	let from = startFrom
 	let page = 0
 	const out: Array<any> = []
 

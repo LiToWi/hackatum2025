@@ -72,7 +72,7 @@ export default function SelectionWizard({
   }
 
   return (
-  <div className="w-full max-w-2xl mx-auto bg-linear-to-br from-gray-900 via-[#0b1220] to-gray-800 rounded-2xl p-6 shadow-xl text-white">
+  <div tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); next() } }} className="w-full max-w-2xl mx-auto bg-linear-to-br from-gray-900 via-[#0b1220] to-gray-800 rounded-2xl p-6 shadow-xl text-white">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-xl font-semibold">Quick Selector</h3>
