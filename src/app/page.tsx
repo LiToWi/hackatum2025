@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParty } from "../contexts/PartyContext";
 import { MapSection } from "../components/MapSection";
 import SelectionWizard from "../components/SelectionWizard";
-import React, { useState, useRef } from 'react'
+import InfoSection from "@/components/InfoSection";
+import EmailPopup from '@/components/EmailPopup'
+import React, { useRef } from 'react'
 import type { Property } from '../types/property'
 
 export default function HomePage() {
@@ -17,6 +19,9 @@ export default function HomePage() {
       partyName
     });
   }, [currentTable, currentParty, partyName]);
+
+  const [showMap, setShowMap] = useState(false)
+  const [isPopupOpen, setIsPopupOpen] = useState(false)
 
   const [listings, setListings] = useState<Property[] | null>(null)
   const mapElRef = useRef<HTMLDivElement | null>(null)
@@ -96,8 +101,24 @@ export default function HomePage() {
         </p>
       </div>
         
+      <button 
+        onClick={() => setIsPopupOpen(true)}
+        className="px-6 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-medium transition-all"
+      >
+        Test Popup
+      </button>
+
       <div className="w-full max-w-2xl flex flex-col gap-6">
-        <SelectionWizard onComplete={handleComplete} />
+        <SelectionWizard
+          onComplete={async (res) => {
+            console.log('Selection result', res)
+            // fetch listings for the map, then show the map
+            await handleComplete(res)
+            setShowMap(true)
+          }}
+          onBack={() => setShowMap(false)}
+          exitOnBack={showMap}
+        />
       </div>
 
       <div className="w-full max-w-6xl">
@@ -105,6 +126,16 @@ export default function HomePage() {
           <MapSection city="Munich" properties={listings || []} focusKey={focusKey ?? undefined} loading={filterLoading} onLoadMore={loadMore} />
         </div>
       </div>
+
+      <EmailPopup
+        isOpen={isPopupOpen}
+        onClose={() => setIsPopupOpen(false)}
+        title="Get Offer"
+        description="Enter your email address and we will contact you!"
+        onSubmit={(email) => {
+          console.log('Email submitted:', email)
+        }}
+      />
     </main>
   );
 }

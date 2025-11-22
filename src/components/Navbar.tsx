@@ -62,7 +62,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="hidden md:inline-block bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-md font-semibold transition"
+              className="hidden md:inline-block px-6 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-medium transition-all"
             >
               LOGIN
             </Link>
@@ -118,7 +118,7 @@ export default function Navbar() {
           ) : (
             <Link 
               href="/login" 
-              className="block bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-md font-semibold transition"
+              className="block w-full text-left px-6 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-medium transition-all"
               onClick={closeMobileMenu}
             >
               LOGIN
