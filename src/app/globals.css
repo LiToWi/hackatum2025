@@ -1,29 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Unica+One&family=Vollkorn:wght@400;700&display=swap');
 @import "tailwindcss";
 
-/* Override background/foreground directly */
+/* Modern font configuration */
 :root {
   --background: #313539;
   --foreground: #ededed;
-  --font-unica: 'Unica One', sans-serif;
-  --font-vollkorn: 'Vollkorn', serif;
 }
 
-/* Optional: keep fonts from inline theme if used elsewhere */
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-unica);
-  --font-serif: var(--font-vollkorn);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* Set global styles */
+/* Global styles */
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-unica), var(--font-vollkorn), Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
+}
+
+/* Heading styles using Space Grotesk */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space-grotesk);
+  font-weight: 700;
 }

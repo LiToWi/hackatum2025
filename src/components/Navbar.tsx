@@ -28,17 +28,15 @@ export default function Navbar() {
         {/* Left: Logo */}
         <Link href="/" className="flex items-center text-2xl font-bold tracking-tight hover:text-blue-600 transition">
           <span className="h-12 w-12 mr-2 relative">
-            <Image src="/logo.svg" alt="Logo" fill className="object-contain" />
+            <Image src="/logo.jpeg" alt="Logo" fill className="object-contain" />
           </span>
           Rent2Own
         </Link>
-        <span> - every payment brings you home</span>
         {/* Center + Right group */}
         <div className="flex items-center space-x-8 ml-auto">
           {/* Nav Links */}
           <div className="hidden md:flex space-x-8 text-md font-medium">
             <Link href="/" className="hover:text-blue-600 transition">Home</Link>
-            <Link href="/drinks" className="hover:text-blue-600 transition">Drinks</Link>
             {session && (
               <Link href="/dashboard/user" className="hover:text-blue-600 transition">Dashboard</Link>
             )}
@@ -91,13 +89,7 @@ export default function Navbar() {
           >
             Home
           </Link>
-          <Link 
-            href="/drinks" 
-            className="block hover:text-blue-600 transition"
-            onClick={closeMobileMenu}
-          >
-            Drinks
-          </Link>
+          
           {session && (
             <Link 
               href="/dashboard/user" 

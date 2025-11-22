@@ -1,29 +1,24 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Unica_One, Vollkorn } from "next/font/google";
+import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from '@/components/Navbar'
 import Providers from '@/components/Providers';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const unica = Unica_One({
-  variable: "--font-unica",
-  subsets: ["latin"],
-  weight: "400"
-});
-
-const vollkorn = Vollkorn({
-  variable: "--font-vollkorn",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
   weight: ["400", "700"],
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["400", "600"],
 });
 
 export const metadata: Metadata = {
@@ -68,7 +63,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${unica.variable} ${vollkorn.variable}antialiased flex flex-col`}>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable} antialiased flex flex-col`}>
         <Providers>
           <Navbar />
 
