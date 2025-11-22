@@ -28,9 +28,9 @@ export default function Navbar() {
         {/* Left: Logo */}
         <Link href="/" className="flex items-center text-2xl font-bold tracking-tight hover-gradient-pink-purple transition">
           <span className="h-12 w-12 mr-2 relative">
-            <Image src="/output2.svg" alt="Logo" fill className="object-contain" />
+            <Image src="/logo.svg" alt="Logo" fill className="object-contain" />
           </span>
-          {/*<span className="hover-gradient-pink-purple transition">rent2own</span>*/}
+          <span className="hover-gradient-pink-purple transition">rent2own</span>
         </Link>
         {/* Center + Right group */}
         <div className="flex items-center space-x-8 ml-auto">

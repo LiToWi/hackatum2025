@@ -22,36 +22,37 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "C2 - Boersensaufen 📈🍺",
-  description: "Saufen, Börse, C2",
-  applicationName: "c2_boersensaufen",
-  authors: [{ name: "Linus Tom Wiggering" }],
+  title: "rent2own",
+  description: "Every payment brings you home!",
+  applicationName: "rent2own",
+  authors: [{ name: "Linus Tom Wiggering" }, { name: "Sarah Weber" }, { name: "Anna Weber"}, { name: "Konstantin Zeck" }],
   generator: "Next.js",
-  keywords: ["Saufen", "Börse", "C2", "Boersensaufen", "Party", "Event"],
+  keywords: ["rent", "home", "own", "living", "Munich", "investment"],
   referrer: "origin-when-cross-origin",
   themeColor: "#111827",
   colorScheme: "dark",
-  creator: "Studentische Initiative Campusleben Garching e.V.",
-  publisher: "Studentische Initiative Campusleben Garching e.V.",
+  creator: "Team Bubu",
+  publisher: "Team Bubu",
   robots: "index, follow",
   viewport: "width=device-width, initial-scale=1.0",
   manifest: "/site.webmanifest",
   icons: [
-    { rel: "icon", url: "/favicon.ico" },
+    { rel: "icon", url: "/logo.svg", type: "image/svg+xml" },
+    { rel: "apple-touch-icon", url: "/logo.svg" },
   ],
   openGraph: {
-    title: "C2 - Boersensaufen",
-    description: "Saufen, Börse, C2",
-    url: "https://c2.tum.de/boersensaufen",
-    siteName: "C2 - Boersensaufen",
+    title: "rent2own",
+    description: "Every payment brings you home!",
+    url: "https://hackatum.wiggering.online",
+    siteName: "rent2own",
     locale: "de_DE",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "C2 - Boersensaufen",
-    description: "Saufen, Börse, C2",
-    creator: "@Studentische Initiative Campusleben Garching e.V.",
+    title: "rent2own",
+    description: "Every payment brings you home!",
+    creator: "@Team Bubu",
   },
   category: "event",
 };
@@ -70,12 +71,7 @@ export default function RootLayout({
           <main className="flex-grow min-h-screen">{children}</main>
 
           <footer className="w-full py-6 text-center text-sm text-gray-400 mt-auto">
-            <p>
-              <a href="https://www.c2.tum.de/impressum/" className="underline hover:text-gray-300">Impressum </a>{" "}
-              |{" "}
-              <a href="https://www.c2.tum.de/datenschutz/" className="underline hover:text-gray-300">Datenschutz </a>
-            </p>
-            © {new Date().getFullYear()} Studentische Initiative Campusleben Garching e.V. – Campus Cneipe
+            © {new Date().getFullYear()} Team Bubu
           </footer>
         </Providers>
       </body>
