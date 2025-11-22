@@ -30,9 +30,9 @@ export default function Navbar() {
           <span className="h-12 w-12 mr-2 relative">
             <Image src="/logo.svg" alt="Logo" fill className="object-contain" />
           </span>
-          Börsensaufen 🍻
+          Rent2Own
         </Link>
-
+        <span> - every payment brings you home</span>
         {/* Center + Right group */}
         <div className="flex items-center space-x-8 ml-auto">
           {/* Nav Links */}
