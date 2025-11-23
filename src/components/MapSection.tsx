@@ -16,9 +16,10 @@ interface MapSectionProps {
   focusKey?: number | undefined
   loading?: boolean
   onLoadMore?: (() => void) | undefined
+  onRequestOffer?: (property: Property) => void
 }
 
-export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], focusKey, loading: apiLoading = false, onLoadMore }) => {
+export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], focusKey, loading: apiLoading = false, onLoadMore, onRequestOffer }) => {
   const mapRef = useRef<HTMLDivElement | null>(null)
   const googleMapRef = useRef<any | null>(null)
   const [mapLoading, setMapLoading] = useState(true)
@@ -26,6 +27,94 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
   const [mapError, setMapError] = useState<string | null>(null)
   const markersRef = useRef<any[]>([])
   const [mapReady, setMapReady] = useState<boolean>(false)
+  const infoWindowRef = useRef<any | null>(null)
+  const closeTimeoutRef = useRef<number | null>(null)
+  const domReadyListenerRef = useRef<any | null>(null)
+
+  const clearCloseTimeout = () => {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
+  }
+
+  const startCloseTimeout = (delay = 350) => {
+    clearCloseTimeout()
+    // store numeric id from window.setTimeout
+    // TypeScript in browser returns number
+    closeTimeoutRef.current = window.setTimeout(() => {
+      try { infoWindowRef.current?.close() } catch (e) {}
+      closeTimeoutRef.current = null
+    }, delay) as unknown as number
+  }
+
+  const showInfoWindow = (marker: any, property: Property) => {
+    try {
+      if (!infoWindowRef.current) infoWindowRef.current = new window.google.maps.InfoWindow({ maxWidth: 300 })
+
+      const container = document.createElement('div')
+      container.style.padding = '8px'
+      container.style.maxWidth = '260px'
+
+      const title = document.createElement('div')
+      title.style.fontWeight = '700'
+      title.style.marginBottom = '6px'
+      // make the title use the same dark color as the rent/meta text
+      title.style.color = '#111827'
+      title.textContent = property.title
+
+      const meta = document.createElement('div')
+      // keep rent/meta dark to match title
+      meta.style.color = '#111827'
+      meta.style.marginBottom = '8px'
+      meta.textContent = `${property.price} €/mo • ${property.sqm} m²`
+
+      const btn = document.createElement('button')
+      btn.textContent = 'Interested? Get an offer'
+      btn.className = 'px-3 py-2 rounded-md text-sm'
+      // solid orange background to match theme
+      btn.style.background = '#D67F31'
+      btn.style.border = 'none'
+      btn.style.color = '#ffffff'
+      btn.style.fontWeight = '600'
+      btn.style.cursor = 'pointer'
+      btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.12)'
+      btn.onclick = (e) => { e.stopPropagation(); if (onRequestOffer) onRequestOffer(property) }
+      // subtle hover effect
+      btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(0.95)' })
+      btn.addEventListener('mouseleave', () => { btn.style.filter = 'none' })
+
+      container.appendChild(title)
+      container.appendChild(meta)
+      container.appendChild(btn)
+
+      // ensure previous domready listener does not leak
+      try { if (domReadyListenerRef.current && infoWindowRef.current) { window.google.maps.event.removeListener(domReadyListenerRef.current); domReadyListenerRef.current = null } } catch (e) {}
+
+      infoWindowRef.current.setContent(container)
+      infoWindowRef.current.open(googleMapRef.current, marker)
+      clearCloseTimeout()
+
+      // Attach domready once to wire mouseenter/mouseleave on the visible wrapper
+      domReadyListenerRef.current = window.google.maps.event.addListenerOnce(infoWindowRef.current, 'domready', () => {
+        try {
+          // Google creates a wrapper element for the InfoWindow content with class 'gm-style-iw'
+          // Find the closest such element and attach listeners so it stays open while hovered.
+          const wrappers = document.getElementsByClassName('gm-style-iw')
+          if (wrappers && wrappers.length) {
+            const wrapper = wrappers[wrappers.length - 1] as HTMLElement
+            wrapper.style.pointerEvents = 'auto'
+            wrapper.addEventListener('mouseenter', () => clearCloseTimeout())
+            wrapper.addEventListener('mouseleave', () => startCloseTimeout(250))
+          }
+        } catch (e) {
+          // ignore DOM errors
+        }
+      })
+    } catch (e) {
+      // fail silently
+    }
+  }
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY
@@ -142,6 +231,8 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
           animation: window.google.maps.Animation.DROP,
         })
         marker.addListener('click', () => setActiveProperty(property))
+        marker.addListener('mouseover', () => { try { showInfoWindow(marker, property) } catch (e) {} })
+        marker.addListener('mouseout', () => { startCloseTimeout(250) })
         markersRef.current.push(marker)
         continue
       }
@@ -187,6 +278,8 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
         })
 
         marker.addListener('click', () => setActiveProperty(property))
+        marker.addListener('mouseover', () => { try { showInfoWindow(marker, property) } catch (e) {} })
+        marker.addListener('mouseout', () => { startCloseTimeout(250) })
         markersRef.current.push(marker)
       }
     }
@@ -213,6 +306,7 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
       })
 
       googleMapRef.current = map
+      infoWindowRef.current = new window.google.maps.InfoWindow({ maxWidth: 300 })
       renderMarkers(map, properties || [])
       setMapReady(true)
     } catch (e) {
@@ -291,7 +385,7 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
         <div className="absolute right-6 bottom-6 z-50 pointer-events-auto">
           <button
             onClick={() => onLoadMore()}
-            className="px-5 py-3 bg-pink-600 text-white text-sm rounded-xl shadow-lg border border-pink-700 hover:bg-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            className="px-5 py-3 bg-[#D67F31] text-white text-sm rounded-xl shadow-lg border border-[#D67F31] hover:bg-[#bf6f2c] focus:outline-none focus:ring-2 focus:ring-[#D67F31] cursor-pointer"
           >
             Load more
           </button>

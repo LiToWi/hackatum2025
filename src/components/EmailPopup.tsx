@@ -53,27 +53,17 @@ export default function EmailPopup({
         <button
           onClick={handleClose}
           type="button"
-          className="absolute top-4 right-4 p-1 text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 p-1 text-gray-400 hover:text-white transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X size={24} />
         </button>
 
-        {/* Title with gradient */}
-        <h2
-          className="text-2xl font-bold mb-2"
-          style={{
-            backgroundImage: 'linear-gradient(90deg, #ff5fa2 0%, #9b6bff 100%)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            color: 'transparent',
-          }}
-        >
-          {title}
-        </h2>
+        {/* Title with gradient (uses global orange->blue stops) */}
+        <h2 className="text-2xl font-bold mb-2 text-gradient-orange-blue">{title}</h2>
 
         {/* Success message or form */}
-        {isSuccess ? (
+            {isSuccess ? (
           <div className="space-y-6 py-8 text-center">
             <div className="text-lg text-white font-medium">
               ✓ Request received!
@@ -81,13 +71,13 @@ export default function EmailPopup({
             <p className="text-gray-300 text-sm">
               Thank you for choosing rent2own.
             </p>
-            <button
-              onClick={handleClose}
-              type="button"
-              className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-medium transition-all"
-            >
-              Close
-            </button>
+                <button
+                  onClick={handleClose}
+                  type="button"
+                  className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-[#D67F31] to-[#1ad0f0] hover:from-[#D67F31] hover:to-[#14c7d9] text-white font-medium transition-all cursor-pointer"
+                >
+                  Close
+                </button>
           </div>
         ) : (
           <>
@@ -109,7 +99,7 @@ export default function EmailPopup({
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
-                  className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D67F31] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -118,14 +108,14 @@ export default function EmailPopup({
                 <button
                   onClick={handleClose}
                   type="button"
-                  className="flex-1 px-4 py-2 rounded-lg transition-colors bg-transparent text-pink-400 border border-pink-400 hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  className="flex-1 px-4 py-2 rounded-lg transition-colors bg-transparent text-[#D67F31] border border-[#D67F31] hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#D67F31] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !email.trim()}
-                  className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-[#D67F31] to-[#1ad0f0] hover:from-[#D67F31] hover:to-[#14c7d9] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                 >
                   {isSubmitting ? 'Sending...' : 'Send'}
                 </button>

@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from '@/components/Navbar'
 import Providers from '@/components/Providers';
+import { ChatWidget } from '@/components/ChatWidget';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
   title: "rent2own",
   description: "Every payment brings you home!",
   applicationName: "rent2own",
-  authors: [{ name: "Linus Tom Wiggering" }, { name: "Sarah Weber" }, { name: "Anna Weber"}, { name: "Konstantin Zeck" }],
+  authors: [{ name: "Linus Tom Wiggering" }, { name: "Sarah Weber" }, { name: "Anna Weber" }, { name: "Konstantin Zeck" }],
   generator: "Next.js",
   keywords: ["rent", "home", "own", "living", "Munich", "investment"],
   referrer: "origin-when-cross-origin",
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
   viewport: "width=device-width, initial-scale=1.0",
   manifest: "/site.webmanifest",
   icons: [
-    { rel: "icon", url: "/logo.svg", type: "image/svg+xml" },
+    { rel: "icon", url: "/logo.png", type: "image/svg+xml" },
     { rel: "apple-touch-icon", url: "/logo.svg" },
   ],
   openGraph: {
@@ -73,6 +74,8 @@ export default function RootLayout({
           <footer className="w-full py-6 text-center text-sm text-gray-400 mt-auto">
             © {new Date().getFullYear()} Team Bubu
           </footer>
+
+          <ChatWidget />
         </Providers>
       </body>
     </html>
