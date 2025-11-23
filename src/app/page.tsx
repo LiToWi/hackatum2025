@@ -6,7 +6,6 @@ import SelectionWizard from "../components/SelectionWizard";
 import EmailPopup from '@/components/EmailPopup'
 import React, { useRef } from 'react'
 import type { Property } from '../types/property'
-import InfoSection from "@/components/InfoSection";
 
 export default function HomePage() {
   // Opening splash state
@@ -35,7 +34,8 @@ export default function HomePage() {
     )
   }
 
-  const [showMap, setShowMap] = useState(false)
+  const [formCompleted, setFormCompleted] = useState(false)
+  const [userData, setUserData] = useState<any | null>(null)
   const [isPopupOpen, setIsPopupOpen] = useState(false)
   const [offerProperty, setOfferProperty] = useState<Property | null>(null)
 
@@ -51,6 +51,8 @@ export default function HomePage() {
     console.log('Selection result', res)
     try {
       setFilterLoading(true)
+      setUserData(res)
+      setFormCompleted(true)
       // save the query so Load more can re-issue with page parameter
       setLastQuery(res)
       setCurrentPage(0)
@@ -121,60 +123,113 @@ export default function HomePage() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-center p-4 gap-8">
+    <div className="min-h-screen flex flex-col font-sans">
       <OpeningSplash />
-      <div className="text-center">
-        <h1 className="text-4xl font-bold font-serif">Welcome to <span className='orange'>ren</span><span className='text-gradient-orange-blue'>t2o</span><span className='blue'>wn</span></h1>
-        <p className="mt-4 text-lg">
-          where every payment brings you home!
-        </p>
-      </div>
-        
-      
 
-      <div className="w-full max-w-2xl flex flex-col gap-6">
-        <SelectionWizard
-          onComplete={async (res) => {
-            console.log('Selection result', res)
-            // fetch listings for the map, then show the map
-            await handleComplete(res)
-            setShowMap(true)
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className={`relative transition-all duration-700 ${formCompleted ? 'h-[40vh]' : 'min-h-[90vh] py-20'} flex items-center justify-center overflow-hidden`}>
+
+          <div className="relative z-10 max-w-7xl mx-auto px-4 text-center space-y-6 w-full">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold font-serif">Welcome to <span className='orange'>ren</span><span className='text-gradient-orange-blue'>t2o</span><span className='blue'>wn</span></h1>
+              <p className="mt-4 text-lg">
+                where every payment brings you home!
+              </p>
+            </div>
+
+            {!formCompleted && (
+              <div className="max-w-5xl mx-auto mt-10 animate-in slide-in-from-bottom-4 duration-700 fade-in">
+                <p className="text-lg text-gray-600 mb-10 font-medium max-w-2xl mx-auto leading-relaxed">
+                  In three simple steps, we transform you from a renter to an equity owner:
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 text-left">
+                  {/* Card 1 */}
+                  <div className="group bg-linear-to-br from-gray-900 via-[#0b1220] to-gray-800 backdrop-blur-md p-6 rounded-2xl border border-gray-700 shadow-sm hover:shadow-xl hover:border-orange-500/30 transition-all duration-300 transform hover:-translate-y-1 cursor-default">
+                    <div className="w-12 h-12 bg-orange-500/10 text-orange-600 rounded-xl flex items-center justify-center font-bold text-xl mb-4 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">1</div>
+                    <p className="text-white font-semibold leading-tight text-lg">
+                      Enter your preferences in the selection wizard.
+                    </p>
+                  </div>
+
+                  {/* Card 2 */}
+                  <div className="group bg-linear-to-br from-gray-900 via-[#0b1220] to-gray-800 backdrop-blur-md p-6 rounded-2xl border border-gray-700 shadow-sm hover:shadow-xl hover:border-orange-500/30 transition-all duration-300 transform hover:-translate-y-1 cursor-default">
+                    <div className="w-12 h-12 bg-orange-500/10 text-orange-600 rounded-xl flex items-center justify-center font-bold text-xl mb-4 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">2</div>
+                    <p className="text-white font-semibold leading-tight text-lg">
+                      Select a property from the interactive map.
+                    </p>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="group bg-linear-to-br from-gray-900 via-[#0b1220] to-gray-800 backdrop-blur-md p-6 rounded-2xl border border-gray-700 shadow-sm hover:shadow-xl hover:border-orange-500/30 transition-all duration-300 transform hover:-translate-y-1 cursor-default">
+                    <div className="w-12 h-12 bg-orange-500/10 text-orange-600 rounded-xl flex items-center justify-center font-bold text-xl mb-4 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-300">3</div>
+                    <p className="text-white font-semibold leading-tight text-lg">
+                      Start receiving equity in your home with each payment!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Content Section: Wizard or Map */}
+        <section className="relative z-20 px-4 sm:px-6 lg:px-8 pb-24 -mt-20">
+          <div className="max-w-7xl mx-auto">
+            {!formCompleted ? (
+              <div className="w-full max-w-2xl mx-auto">
+                <SelectionWizard
+                  onComplete={handleComplete}
+                />
+              </div>
+            ) : (
+              <div className="space-y-8 animate-in fade-in duration-700">
+                <div className="text-center space-y-2">
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                    We are matching you with the best options!
+                  </h2>
+                </div>
+
+                <div data-map-root ref={mapElRef}>
+                  <MapSection
+                    city="Munich"
+                    properties={listings || []}
+                    focusKey={focusKey ?? undefined}
+                    loading={filterLoading}
+                    onLoadMore={loadMore}
+                    onRequestOffer={(p) => { setOfferProperty(p); setIsPopupOpen(true) }}
+                  />
+                </div>
+
+                <div className="flex justify-center pt-8">
+                  <button
+                    onClick={() => {
+                      setFormCompleted(false)
+                      setListings(null)
+                      setUserData(null)
+                    }}
+                    className="text-gray-600 hover:text-orange-500 underline underline-offset-4 transition-colors font-medium"
+                  >
+                    Change my preferences
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <EmailPopup
+          isOpen={isPopupOpen}
+          onClose={() => { setIsPopupOpen(false); setOfferProperty(null) }}
+          title="Get Offer"
+          description={offerProperty ? `Request an offer for ${offerProperty.title}` : 'Enter your email address and we will contact you!'}
+          onSubmit={(email) => {
+            console.log('Email submitted:', email, 'for', offerProperty)
+            setOfferProperty(null)
           }}
-          onBack={() => setShowMap(false)}
-          exitOnBack={showMap}
         />
-      </div>
-
-      <div className="w-full max-w-6xl">
-        <div data-map-root>
-          {showMap ? (
-            <MapSection
-              city="Munich"
-              properties={listings || []}
-              focusKey={focusKey ?? undefined}
-              loading={filterLoading}
-              onLoadMore={loadMore}
-              onRequestOffer={(p) => { setOfferProperty(p); setIsPopupOpen(true) }}
-            />
-          ) : (
-            <InfoSection
-              title="Find matching properties"
-              description="Complete the wizard to filter properties — when you finish the map will appear. Click Back to return to this information view."
-            />
-          )}
-        </div>
-      </div>
-
-      <EmailPopup
-        isOpen={isPopupOpen}
-        onClose={() => { setIsPopupOpen(false); setOfferProperty(null) }}
-        title="Get Offer"
-        description={offerProperty ? `Request an offer for ${offerProperty.title}` : 'Enter your email address and we will contact you!'}
-        onSubmit={(email) => {
-          console.log('Email submitted:', email, 'for', offerProperty)
-          setOfferProperty(null)
-        }}
-      />
-    </main>
+      </main>
+    </div>
   );
 }
