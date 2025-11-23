@@ -1,24 +1,38 @@
 'use client'
 
 import { useEffect, useState } from "react";
-import { useParty } from "../contexts/PartyContext";
 import { MapSection } from "../components/MapSection";
 import SelectionWizard from "../components/SelectionWizard";
-import InfoSection from "@/components/InfoSection";
 import EmailPopup from '@/components/EmailPopup'
 import React, { useRef } from 'react'
 import type { Property } from '../types/property'
 
 export default function HomePage() {
-  const { currentTable, currentParty, partyName } = useParty();
+  // Opening splash state
+  const [showSplash, setShowSplash] = useState(true)
 
-  useEffect(() => {
-    console.log("Current Party Info:", {
-      currentTable,
-      currentParty,
-      partyName
-    });
-  }, [currentTable, currentParty, partyName]);
+  // removed server-side crypto usage from client bundle (was causing bundling issues)
+
+  function OpeningSplash() {
+    // hide after animation end or on click/escape
+    useEffect(() => {
+      const t = setTimeout(() => setShowSplash(false), 2200)
+      const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowSplash(false) }
+      window.addEventListener('keydown', onKey)
+      return () => { clearTimeout(t); window.removeEventListener('keydown', onKey) }
+    }, [])
+
+    if (!showSplash) return null
+
+    return (
+      <div className="opening-splash" aria-hidden={!showSplash} onClick={() => setShowSplash(false)}>
+        <div className="opening-splash-inner" role="presentation">
+          <h2 className="font-serif font-bold text-2xl">rent2own</h2>
+          <div className="subtitle">Where every payment brings you home</div>
+        </div>
+      </div>
+    )
+  }
 
   const [showMap, setShowMap] = useState(false)
   const [isPopupOpen, setIsPopupOpen] = useState(false)
@@ -29,9 +43,9 @@ export default function HomePage() {
   const [filterLoading, setFilterLoading] = useState<boolean>(false)
   const [currentPage, setCurrentPage] = useState<number>(0)
   const [pageSize, setPageSize] = useState<number>(20)
-  const [lastQuery, setLastQuery] = useState<any | null>(null)
+  const [lastQuery, setLastQuery] = useState<Record<string, unknown> | null>(null)
 
-  async function handleComplete(res: any) {
+  async function handleComplete(res: Record<string, unknown>) {
     console.log('Selection result', res)
     try {
       setFilterLoading(true)
@@ -55,7 +69,7 @@ export default function HomePage() {
           mapElRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
           // attempt a small additional offset in case of sticky headers
           setTimeout(() => { window.scrollBy(0, -24) }, 200)
-        } catch (e) {
+        } catch {
           // ignore
         }
       }, 300)
@@ -94,6 +108,7 @@ export default function HomePage() {
 
   return (
     <main className="flex flex-col items-center justify-center p-4 gap-8">
+      <OpeningSplash />
       <div className="text-center">
         <h1 className="text-4xl font-bold font-serif">Welcome to <span className="text-gradient-pink-purple">rent2own</span></h1>
         <p className="mt-4 text-lg">

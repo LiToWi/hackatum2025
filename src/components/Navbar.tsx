@@ -19,7 +19,7 @@ export default function Navbar() {
   // Handle logout and close menu
   const handleLogout = () => {
     closeMobileMenu()
-    signOut()
+    signOut({ callbackUrl: 'https://hackatum.wiggering.online' })
   }
 
   return (
@@ -35,16 +35,6 @@ export default function Navbar() {
         {/* Center + Right group */}
         <div className="flex items-center space-x-8 ml-auto">
           {/* Nav Links */}
-          <div className="hidden md:flex space-x-8 text-md font-medium">
-            <Link href="/" className="hover-gradient-pink-purple transition">Home</Link>
-            {session && (
-              <Link href="/dashboard/user" className="hover-gradient-pink-purple transition">Dashboard</Link>
-            )}
-            {session && (
-                <Link href={`/tables/${session.user?.name}`} className="hover-gradient-pink-purple transition">My Party</Link>
-            )}
-          </div>
-
           {/* Login/Logout Button */}
           {status === 'loading' ? (
             <div className="hidden md:block text-sm">
@@ -53,7 +43,7 @@ export default function Navbar() {
           ) : session ? (
             <div className="hidden md:flex items-center space-x-4">
               <button
-                onClick={() => signOut()}
+                onClick={() => signOut({ callbackUrl: 'https://hackatum.wiggering.online' })}
                 className="bg-red-500 hover:bg-red-400 text-white px-4 py-1.5 rounded-md font-semibold transition"
               >
                 LOGOUT ({session.user?.name})
@@ -97,15 +87,6 @@ export default function Navbar() {
               onClick={closeMobileMenu}
             >
               Dashboard
-            </Link>
-          )}
-          {session && (
-            <Link 
-              href={`/tables/${session.user?.name}`} 
-              className="hover-gradient-pink-purple transition"
-              onClick={closeMobileMenu}
-            >
-              My Party
             </Link>
           )}
           {session ? (

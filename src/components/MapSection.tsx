@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React, { useEffect, useRef, useState } from 'react'
 import { Loader2, MapPin as MapPinIcon } from 'lucide-react'
 

@@ -243,7 +243,7 @@ export function findOptimalEdge(params: SimulationParams): OptimalEdgeResult | n
   return {
     edge: bestEdge,
     // `profit` here represents the Studentenwerk's profit for the chosen edge
-    profit: (bestResult as any).studentenwerkProfit ?? bestResult.profit,
+    profit: bestResult.studentenwerkProfit ?? bestResult.profit,
     durationMonths: bestResult.durationMonths,
     studentOwnershipPercentage: bestResult.studentOwnershipPercentage,
   }

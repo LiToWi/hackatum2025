@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+  "seed:user": "node scripts/seedUser.cjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -18,7 +19,7 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "convex": "^1.29.3",
+    
     "lucide-react": "^0.536.0",
     "next": "15.4.5",
     "next-auth": "^4.24.11",

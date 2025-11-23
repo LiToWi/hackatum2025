@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server'
 import { fetchMunichRentRoomsSqm } from '../../../../scripts/filter'
 import { findOptimalEdge } from '../../../../src/lib/calc'

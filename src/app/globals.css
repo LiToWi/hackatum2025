@@ -6,6 +6,48 @@
   --foreground: #ededed;
 }
 
+/* Opening splash animation */
+@keyframes splashInOut {
+  0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+  10% { opacity: 1; transform: translateY(0) scale(1); }
+  70% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-18px) scale(0.995); }
+}
+
+.opening-splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  pointer-events: none; /* clicks pass through when dismissed */
+  z-index: 60;
+}
+
+.opening-splash-inner {
+  margin-top: 56px; /* slightly below top */
+  background: transparent;
+  pointer-events: auto;
+  text-align: center;
+  animation: splashInOut 2200ms cubic-bezier(.2,.9,.2,1) forwards;
+}
+
+.opening-splash h2 {
+  font-size: 28px;
+  margin: 0;
+}
+
+.opening-splash .subtitle {
+  margin-top: 6px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+}
+
+/* hide completely when reduced motion preferred */
+@media (prefers-reduced-motion: reduce) {
+  .opening-splash-inner { animation: none; opacity: 1 }
+}
+
 /* Global styles */
 body {
   background-color: var(--background);

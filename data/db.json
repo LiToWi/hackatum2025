@@ -1,0 +1,38 @@
+{
+  "users": [
+    {
+      "id": "u_1763855677070_6534",
+      "name": "LiToWi",
+      "email": "litowi@wiggering.online",
+      "passwordHash": "33da9ae44217d11d82dc14411201e4bdcea52f0723eaf061c3eabd3a6388699b",
+      "salt": "cfaf5cf078ad1eabeb2b74d88810c24c",
+      "createdAt": 1763855677065,
+      "updatedAt": 1763860022655
+    }
+  ],
+  "properties": [
+    {
+      "id": "p_litowi_1",
+      "sourceId": "thinkimmo-12345",
+      "title": "Sunny 2-room apartment, central",
+      "lat": 48.8566,
+      "lng": 2.3522,
+      "price": 420000,
+      "purchasePrice": 350000,
+      "sqm": 55,
+      "rooms": 2,
+      "imageUrl": "https://images.unsplash.com/photo-1560184897-e9d1e5a3f1d9?q=80&w=1200&auto=format&fit=crop",
+      "raw": {
+        "source": "thinkimmo"
+      }
+    }
+  ],
+  "ownerships": [
+    {
+      "id": "own_litowi_1",
+      "userId": "u_1763855677070_6534",
+      "propertyId": "p_litowi_1",
+      "createdAt": 1763858656000
+    }
+  ]
+}
