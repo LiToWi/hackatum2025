@@ -53,7 +53,7 @@ export default function EmailPopup({
         <button
           onClick={handleClose}
           type="button"
-          className="absolute top-4 right-4 p-1 text-gray-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 p-1 text-gray-400 hover:text-white transition-colors cursor-pointer"
           aria-label="Close"
         >
           <X size={24} />
@@ -74,7 +74,7 @@ export default function EmailPopup({
                 <button
                   onClick={handleClose}
                   type="button"
-                  className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-[#D67F31] to-[#1ad0f0] hover:from-[#D67F31] hover:to-[#14c7d9] text-white font-medium transition-all"
+                  className="w-full px-4 py-2 rounded-lg bg-gradient-to-r from-[#D67F31] to-[#1ad0f0] hover:from-[#D67F31] hover:to-[#14c7d9] text-white font-medium transition-all cursor-pointer"
                 >
                   Close
                 </button>
@@ -108,14 +108,14 @@ export default function EmailPopup({
                 <button
                   onClick={handleClose}
                   type="button"
-                  className="flex-1 px-4 py-2 rounded-lg transition-colors bg-transparent text-[#D67F31] border border-[#D67F31] hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#D67F31]"
+                  className="flex-1 px-4 py-2 rounded-lg transition-colors bg-transparent text-[#D67F31] border border-[#D67F31] hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#D67F31] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting || !email.trim()}
-                  className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-[#D67F31] to-[#1ad0f0] hover:from-[#D67F31] hover:to-[#14c7d9] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-[#D67F31] to-[#1ad0f0] hover:from-[#D67F31] hover:to-[#14c7d9] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                 >
                   {isSubmitting ? 'Sending...' : 'Send'}
                 </button>
