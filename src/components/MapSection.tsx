@@ -68,6 +68,20 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
       meta.style.color = '#111827'
       meta.style.marginBottom = '8px'
       meta.textContent = `${property.price} €/mo • ${property.sqm} m²`
+      if (typeof property.idealEdge === 'number') {
+        const edgeLine = document.createElement('div')
+        edgeLine.style.color = '#374151'
+        edgeLine.style.fontSize = '12px'
+        edgeLine.textContent = `Ideal edge: ${property.idealEdge.toFixed(3)}`
+        meta.appendChild(edgeLine)
+      }
+      if (typeof property.ownerProfit === 'number') {
+        const profitLine = document.createElement('div')
+        profitLine.style.color = '#374151'
+        profitLine.style.fontSize = '12px'
+        profitLine.textContent = `Owner profit: ${property.ownerProfit.toFixed(0)} €`
+        meta.appendChild(profitLine)
+      }
 
       const btn = document.createElement('button')
       btn.textContent = 'Interested? Get an offer'

@@ -72,7 +72,7 @@ export function simulateEdge(edge: number, params: SimulationParams): Simulation
     adminSavingsPerMonth,
     adminSavingsPerYear,
     inflationRate = 0.018, // annual (fixed)
-  transferIntervalMonths = 36,
+    transferIntervalMonths: _transferIntervalMonths = 36,
     rentingPeriodMonths,
     rentingPeriodYears,
     numberOfRoommates,
@@ -82,7 +82,8 @@ export function simulateEdge(edge: number, params: SimulationParams): Simulation
   // Resolve monthly rent and admin savings (support legacy yearly inputs)
   const rentPerMonth =
     startRentPerMonth ?? (startRentPerYear ? startRentPerYear / 12 : 0)
-  const adminPerMonth =
+  // intentionally unused in current model; keep as '_' to avoid lint warnings
+  const _adminPerMonth =
     adminSavingsPerMonth ?? (adminSavingsPerYear ? adminSavingsPerYear / 12 : 2000 / 12)
 
   // Determine simulation duration in months. The user must provide an

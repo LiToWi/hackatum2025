@@ -70,7 +70,7 @@ export async function fetchMunichRentRoomsSqm(options?: { size?: number; pages?:
 		const payload: any = {
 			active: true,
 			sortBy: 'desc',
-			sortKey: 'pricePerSqm',
+			sortKey: 'squareMeter',
 			from,
 			size,
 			geoSearches: {

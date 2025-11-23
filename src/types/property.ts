@@ -10,4 +10,10 @@ export interface Property {
   equityPercentage?: number
   // Precise percentage (0-100) the student will own after the full renting period
   studentOwnershipPercentage?: number
+  // Calculated optimal edge to maximize owner yield while meeting constraints
+  idealEdge?: number
+  // Owner profit (Studentenwerk) at chosen edge (EUR)
+  ownerProfit?: number
+  // Student profit (equity value - PV of rents) at chosen edge (EUR)
+  studentProfit?: number
 }

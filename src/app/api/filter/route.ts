@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server'
 import { fetchMunichRentRoomsSqm } from '../../../../scripts/filter'
-import { findOptimalEdge } from '../../../../src/lib/calc'
+import { findOptimalEdge, simulateEdge } from '../../../../src/lib/calc'
 import type { Property } from '../../../../src/types/property'
 
 function pickCoord(listing: any): { lat?: number; lng?: number } {
@@ -18,6 +18,19 @@ function pickCoord(listing: any): { lat?: number; lng?: number } {
 
   if (typeof lat === 'number' && typeof lng === 'number') return { lat, lng }
   return {}
+}
+
+function toNumber(v: any): number | null {
+  if (typeof v === 'number' && !Number.isNaN(v)) return v
+  if (typeof v === 'string' && v.length) {
+    // remove common non-numeric characters, allow comma as decimal
+    const cleaned = v.replace(/€/g, '').replace(/\s/g, '').replace(',', '.')
+    const m = cleaned.match(/-?\d+(?:\.\d+)?/)
+    if (!m) return null
+    const n = Number(m[0])
+    return Number.isNaN(n) ? null : n
+  }
+  return null
 }
 
 export async function POST(request: Request) {
@@ -40,11 +53,31 @@ export async function POST(request: Request) {
         continue
       }
 
-      const rent = typeof l.rentPrice === 'number' ? l.rentPrice : (typeof l.rent === 'number' ? l.rent : (typeof l.price === 'number' ? l.price : 0))
-      const buying = typeof l.buyingPrice === 'number' ? l.buyingPrice : (typeof l.buying_price === 'number' ? l.buying_price : null)
+  // collect a variety of possible source fields from upstream
+  const rawSquare = toNumber(l.squareMeter) ?? toNumber(l.size) ?? toNumber(l.sqm) ?? toNumber(l.livingSpace) ?? null
+  const rawBuying = toNumber(l.buyingPrice) ?? toNumber(l.priceBuying) ?? toNumber(l.buying_price) ?? toNumber(l.aggregations?.location?.buyingPrice) ?? null
+  const rawPricePerSqm = toNumber(l.pricePerSqm) ?? toNumber(l.pricePerMeter) ?? toNumber(l.spPricePerSqm) ?? toNumber(l.aggregations?.location?.pricePerSqm) ?? null
+  // rent may be provided directly or as per-sqm estimate
+  let rawRent = toNumber(l.rentPrice) ?? toNumber(l.rent) ?? toNumber(l.price) ?? toNumber(l.rentPriceCurrent) ?? null
+  // if rent missing but rentPricePerSqm exists and sqm available, compute rent
+  const rentPerSqm = toNumber(l.rentPricePerSqm) ?? toNumber(l.rentPriceCurrentPerSqm) ?? null
+  // final canonical values
+  const buying = rawBuying
+  let sqmVal: number | null = rawSquare
+  const pricePerSqm = rawPricePerSqm
+  // compute rent if needed
+  if ((rawRent == null || rawRent === 0) && rentPerSqm && sqmVal) {
+    rawRent = Math.round(rentPerSqm * sqmVal)
+  }
+  const rent = rawRent ?? 0
+  // sqmVal already initialized above from possible raw fields
 
       let equityPercentage = 0
       let studentOwnershipPercentage: number | undefined = undefined
+      // prepare optional calculation outputs
+      let idealEdge: number | undefined = undefined
+      let ownerProfit: number | undefined = undefined
+      let studentProfit: number | undefined = undefined
       try {
         if (buying && rent && typeof rentingMonths === 'number' && rentingMonths > 0) {
           const opt = findOptimalEdge({
@@ -56,22 +89,63 @@ export async function POST(request: Request) {
           equityPercentage = Math.round(opt?.studentOwnershipPercentage ?? 0)
           // keep precise value too
           studentOwnershipPercentage = opt?.studentOwnershipPercentage ?? undefined
+          // expose ideal edge and owner profit
+          idealEdge = opt?.edge
+          ownerProfit = opt?.profit
+          // compute student profit for the chosen edge (if available)
+            if (typeof idealEdge === 'number') {
+            try {
+              const sim = simulateEdge(idealEdge, {
+                purchasePrice: buying,
+                startRentPerMonth: rent,
+                rentingPeriodMonths: rentingMonths,
+              })
+              studentProfit = sim?.profit
+            } catch {
+              // ignore simulation errors
+            }
+          }
         }
-      } catch (e) {
-        // swallow a calculation failure and continue
-        console.warn('calc failed for listing', l.id, e)
+      // debug: if values are missing, log the raw listing for inspection
+        if ((!rent || rent === 0) || (rawSquare == null && toNumber(l.size) == null)) {
+        console.log('[filter] parse missing numeric fields for listing:', {
+          id: l.id ?? l._id,
+          rentRaw: l.rentPrice ?? l.rent ?? l.price,
+          squareRaw: l.squareMeter ?? l.size,
+        })
+        // Dump the raw listing object to inspect unexpected shapes
+  try { console.log('[filter] raw listing dump:', JSON.stringify(l)) } catch { console.log('[filter] raw listing (non-serializable)', l) }
+      }
+      // fallback: if sqm missing but buying price and pricePerSqm available, estimate sqm
+      if ((sqmVal == null) && buying && pricePerSqm) {
+        try {
+          const estimated = Math.round(buying / pricePerSqm)
+            if (Number.isFinite(estimated) && estimated > 0) {
+            sqmVal = estimated
+            console.log('[filter] estimated sqm from buying/pricePerSqm', { id: l.id ?? l._id, estimated })
+          }
+        } catch {
+          // ignore
+        }
+      }
+      } catch (err) {
+        // swallow a calculation failure and continue (log error for diagnostics)
+        console.warn('calc failed for listing', l.id, err)
       }
 
-      out.push({
+        out.push({
         id: l.id ?? l._id ?? `${coords.lat}-${coords.lng}`,
         lat: coords.lat as number,
         lng: coords.lng as number,
         title: l.title ?? l.address ?? 'Listing',
-        price: rent ?? 0,
-        sqm: typeof l.squareMeter === 'number' ? l.squareMeter : (typeof l.size === 'number' ? l.size : null),
-        rooms: typeof l.rooms === 'number' ? l.rooms : null,
+        price: typeof rent === 'number' ? rent : 0,
+        sqm: sqmVal ?? null,
+        rooms: toNumber(l.rooms) ?? null,
         equityPercentage,
         studentOwnershipPercentage,
+        idealEdge: typeof idealEdge === 'number' ? idealEdge : undefined,
+        ownerProfit: typeof ownerProfit === 'number' ? ownerProfit : undefined,
+        studentProfit: typeof studentProfit === 'number' ? studentProfit : undefined,
       })
     }
 

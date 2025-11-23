@@ -77,6 +77,63 @@ export default function SelectionWizard({
   const [dwellingSelection, setDwellingSelection] = useState<'single' | number | null>(null)
   const nextButtonRef = useRef<HTMLButtonElement | null>(null)
 
+  // persistence key for saving wizard preferences between pages
+  const STORAGE_KEY = 'rent2own:wizard'
+  const [lastSavedStep, setLastSavedStep] = useState<number | null>(null)
+
+  // local type for saved data (includes step)
+  type SavedWizard = Partial<WizardResult> & { step?: number }
+
+  // load persisted prefs on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+        const parsedRaw = JSON.parse(raw) as unknown
+        if (!parsedRaw || typeof parsedRaw !== 'object') return
+        const parsed = parsedRaw as Record<string, unknown>
+        if (typeof parsed['rentingMonths'] === 'number') setRentingMonths(parsed['rentingMonths'] as number)
+        if (typeof parsed['hasWg'] === 'boolean') setHasWg(parsed['hasWg'] as boolean)
+        if (typeof parsed['roommates'] === 'number') setRoommates(parsed['roommates'] as number)
+        if (typeof parsed['monthlyRent'] === 'number') setMonthlyRent(parsed['monthlyRent'] as number)
+        if (typeof parsed['zip'] === 'string') setZip(parsed['zip'] as string)
+        if (typeof parsed['desiredRooms'] === 'number') setDesiredRooms(parsed['desiredRooms'] as number)
+        if (typeof parsed['locationMin'] === 'number') setLocationMin(parsed['locationMin'] as number)
+        if (typeof parsed['locationMax'] === 'number') setLocationMax(parsed['locationMax'] as number)
+        if (typeof parsed['step'] === 'number') {
+          setStep(parsed['step'] as number)
+          setLastSavedStep(parsed['step'] as number)
+        }
+        // derive dwelling selection from roommates/hasWg
+        if (parsed['hasWg'] === true) setDwellingSelection((parsed['roommates'] as number) ?? 'single')
+        else setDwellingSelection('single')
+    } catch (e) {
+      // ignore parse errors
+    }
+  }, [])
+
+  // persist changes whenever key inputs change
+  useEffect(() => {
+    try {
+      const toSave: Partial<WizardResult> = {
+        rentingMonths: typeof rentingMonths === 'number' ? rentingMonths : undefined,
+        hasWg,
+        roommates: typeof roommates === 'number' ? roommates : undefined,
+        monthlyRent: typeof monthlyRent === 'number' ? monthlyRent : undefined,
+        zip: zip || undefined,
+        desiredRooms: typeof desiredRooms === 'number' ? desiredRooms : undefined,
+        locationMin,
+        locationMax,
+      }
+      // include the current step so we know if the user reached Summary
+      const withStep = Object.assign({}, toSave, { step })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(withStep))
+      setLastSavedStep(step)
+    } catch (e) {
+      // ignore storage errors (e.g., private mode)
+    }
+  }, [rentingMonths, hasWg, roommates, monthlyRent, zip, desiredRooms, locationMin, locationMax, step])
+
   const steps = [
     'Planned stay',
     'Roommates',
@@ -204,6 +261,14 @@ export default function SelectionWizard({
         <div>
           <h3 className="text-xl font-semibold">Quick Selector</h3>
           <p className="text-sm text-gray-400">Answer a few questions to tailor listings.</p>
+              {/* show where the user left off last time */}
+              {typeof lastSavedStep === 'number' ? (
+                lastSavedStep === totalSteps - 1 ? (
+                  <div className="text-sm text-emerald-300">Previously completed: Summary ✓</div>
+                ) : (
+                  <div className="text-sm text-gray-400">Last run: Step {lastSavedStep + 1} / {totalSteps}</div>
+                )
+              ) : null}
         </div>
   <div className="text-sm text-gray-400">Step {displayStepNumber()} / {totalSteps}</div>
       </div>
