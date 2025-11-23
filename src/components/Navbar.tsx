@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import LoadingAnimation from './LoadingAnimation';
@@ -10,6 +11,7 @@ import LoadingAnimation from './LoadingAnimation';
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { data: session, status } = useSession()
+  const router = useRouter()
 
   // Function to close mobile menu
   const closeMobileMenu = () => {
@@ -17,9 +19,13 @@ export default function Navbar() {
   }
 
   // Handle logout and close menu
-  const handleLogout = () => {
+  const handleLogout = async () => {
     closeMobileMenu()
-    signOut({ callbackUrl: 'https://hackatum.wiggering.online' })
+    try {
+      await signOut({ redirect: false })
+    } finally {
+      router.push('/login')
+    }
   }
 
   return (
@@ -34,7 +40,18 @@ export default function Navbar() {
         </Link>
         {/* Center + Right group */}
         <div className="flex items-center space-x-8 ml-auto">
-          {/* Nav Links */}
+          {/* Desktop nav links (visible on md+) */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link href="/" className="px-3 py-1.5 rounded-md hover-gradient-pink-purple transition font-medium">
+              Home
+            </Link>
+            {session && (
+              <Link href="/dashboard/user" className="px-3 py-1.5 rounded-md hover-gradient-pink-purple transition font-medium">
+                Dashboard
+              </Link>
+            )}
+          </div>
+
           {/* Login/Logout Button */}
           {status === 'loading' ? (
             <div className="hidden md:block text-sm">
@@ -43,27 +60,20 @@ export default function Navbar() {
           ) : session ? (
             <div className="hidden md:flex items-center space-x-4">
               <button
-                onClick={() => signOut({ callbackUrl: 'https://hackatum.wiggering.online' })}
+                onClick={handleLogout}
                 className="bg-red-500 hover:bg-red-400 text-white px-4 py-1.5 rounded-md font-semibold transition"
               >
                 LOGOUT ({session.user?.name})
               </button>
             </div>
           ) : (
-            <Link
-              href="/login"
-              className="hidden md:inline-block px-6 py-2 rounded-lg bg-[#1ad0f0] hover:bg-[#14c7d9] text-black font-medium transition-all"
-            >
+            <Link href="/login" className="hidden md:inline-block px-6 py-2 rounded-lg bg-[#D67F31] hover:bg-[#bf6f2c] text-white font-medium transition-all">
               LOGIN
             </Link>
           )}
 
           {/* Mobile toggle button */}
-          <button
-            className="md:hidden focus:outline-none ml-2"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
+          <button className="md:hidden focus:outline-none ml-2" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -99,7 +109,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="block w-full text-left px-6 py-2 rounded-lg bg-[#1ad0f0] hover:bg-[#14c7d9] text-black font-medium transition-all"
+              className="block w-full text-left px-6 py-2 rounded-lg bg-[#D67F31] hover:bg-[#bf6f2c] text-white font-medium transition-all"
               onClick={closeMobileMenu}
             >
               LOGIN

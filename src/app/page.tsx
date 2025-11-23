@@ -16,7 +16,7 @@ export default function HomePage() {
   function OpeningSplash() {
     // hide after animation end or on click/escape
     useEffect(() => {
-      const t = setTimeout(() => setShowSplash(false), 2200)
+      const t = setTimeout(() => setShowSplash(false), 3500)
       const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowSplash(false) }
       window.addEventListener('keydown', onKey)
       return () => { clearTimeout(t); window.removeEventListener('keydown', onKey) }
@@ -24,18 +24,38 @@ export default function HomePage() {
 
     if (!showSplash) return null
 
+    const letters = Array.from('rent2own')
+
     return (
       <div className="opening-splash" aria-hidden={!showSplash} onClick={() => setShowSplash(false)}>
         <div className="opening-splash-inner" role="presentation">
-          <h2 className="font-serif font-bold text-2xl">rent2own</h2>
-          <div className="subtitle">Where every payment brings you home</div>
+          <div className="splash-logo" aria-hidden={!showSplash}>
+            <div className="splash-letters" aria-hidden>
+              {letters.map((ch, i) => (
+                <span key={i} className="splash-letter" style={{ animationDelay: `${i * 110}ms` }}>{ch}</span>
+              ))}
+            </div>
+
+            <div className="splash-sub">Where every payment brings you home</div>
+
+            <div className="splash-burst" aria-hidden>
+              {Array.from({ length: 12 }).map((_, i) => (
+                <span
+                  key={i}
+                  className="burst-dot"
+                  style={{ animationDelay: `${300 + i * 60}ms`, transform: `rotate(${i * 30}deg) translateY(-8px)` } as React.CSSProperties}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   const [formCompleted, setFormCompleted] = useState(false)
-  const [userData, setUserData] = useState<any | null>(null)
+  // only keep setter since the raw userData object is not read locally
+  const [, setUserData] = useState<Record<string, unknown> | null>(null)
   const [isPopupOpen, setIsPopupOpen] = useState(false)
   const [offerProperty, setOfferProperty] = useState<Property | null>(null)
 
@@ -44,7 +64,7 @@ export default function HomePage() {
   const [focusKey, setFocusKey] = useState<number | null>(null)
   const [filterLoading, setFilterLoading] = useState<boolean>(false)
   const [currentPage, setCurrentPage] = useState<number>(0)
-  const [pageSize, setPageSize] = useState<number>(20)
+  const [pageSize] = useState<number>(20)
   const [lastQuery, setLastQuery] = useState<Record<string, unknown> | null>(null)
 
   async function handleComplete(res: Record<string, unknown>) {
@@ -122,25 +142,27 @@ export default function HomePage() {
     }
   }
 
+  if (showSplash) {
+    // Render only the splash while it is visible so it doesn't interleave
+    // with the regular page content. The OpeningSplash component will
+    // call setShowSplash(false) after its animation completes.
+    return <OpeningSplash />
+  }
+
   return (
     <div className="min-h-screen flex flex-col font-sans">
-      <OpeningSplash />
-
-      <main className="flex-grow">
+      <main className="grow">
         {/* Hero Section */}
         <section className={`relative transition-all duration-700 ${formCompleted ? 'h-[40vh]' : 'min-h-[90vh] py-20'} flex items-center justify-center overflow-hidden`}>
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 text-center space-y-6 w-full">
             <div className="text-center">
               <h1 className="text-4xl font-bold font-serif">Welcome to <span className='orange'>ren</span><span className='text-gradient-orange-blue'>t2o</span><span className='blue'>wn</span></h1>
-              <p className="mt-4 text-lg">
-                where every payment brings you home!
-              </p>
             </div>
 
             {!formCompleted && (
               <div className="max-w-5xl mx-auto mt-10 animate-in slide-in-from-bottom-4 duration-700 fade-in">
-                <p className="text-lg text-gray-600 mb-10 font-medium max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg text-white mb-10 font-medium max-w-2xl mx-auto leading-relaxed">
                   In three simple steps, we transform you from a renter to an equity owner:
                 </p>
 
@@ -231,5 +253,5 @@ export default function HomePage() {
         />
       </main>
     </div>
-  );
+  )
 }

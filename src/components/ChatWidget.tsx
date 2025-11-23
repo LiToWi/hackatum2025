@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2, Bot } from 'lucide-react';
 import Markdown from 'react-markdown';
@@ -123,7 +124,7 @@ export const ChatWidget: React.FC = () => {
           ${isOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4 pointer-events-none h-0'}`}
             >
                 {/* Header */}
-                <div className="bg-gradient-to-r from-primary to-secondary p-4 flex items-center justify-between">
+                <div className="bg-linear-to-r from-primary to-secondary p-4 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-white">
                         <div className="bg-white/20 p-1.5 rounded-lg">
                             <Bot size={20} />
@@ -179,7 +180,7 @@ export const ChatWidget: React.FC = () => {
                                                 {...props}
                                             />
                                         ),
-                                        code: ({ inline, ...props }: any) => (
+                                        code: (props: any) => (
                                             <code
                                                 className={`px-1 py-0.5 rounded text-xs font-mono ${msg.sender === 'user' ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-700'}`}
                                                 {...props}
@@ -226,13 +227,15 @@ export const ChatWidget: React.FC = () => {
             </div>
 
             {/* Toggle Button */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg shadow-primary/30 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95"
-                aria-label="Open chat"
-            >
-                {isOpen ? <X size={28} /> : <MessageCircle size={28} />}
-            </button>
+            <div className="rounded-full p-0.5 bg-linear-to-br from-[#D67F31] to-[#1ad0f0] shadow-lg">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full border-0 flex items-center justify-center transition-all transform hover:scale-105 active:scale-95"
+                    aria-label="Open chat"
+                >
+                    {isOpen ? <X size={28} /> : <MessageCircle size={28} />}
+                </button>
+            </div>
         </div>
     );
 };

@@ -72,7 +72,7 @@ export function simulateEdge(edge: number, params: SimulationParams): Simulation
     adminSavingsPerMonth,
     adminSavingsPerYear,
     inflationRate = 0.018, // annual (fixed)
-    transferIntervalMonths = 36,
+  transferIntervalMonths = 36,
     rentingPeriodMonths,
     rentingPeriodYears,
     numberOfRoommates,

@@ -315,10 +315,12 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
     }
   }
 
+  // Call renderMarkers when properties change. Include renderMarkers in
+  // the dependency list so linting doesn't require a suppression.
   useEffect(() => {
     if (!googleMapRef.current) return
     renderMarkers(googleMapRef.current, properties || [])
-  }, [properties])
+  }, [properties, renderMarkers])
 
   // Pan/zoom to first property when focus is requested and map is ready
   useEffect(() => {

@@ -18,6 +18,9 @@ type Property = {
   balcony?: boolean
   parking?: boolean
   annualRent?: number
+  ownershipStart?: string | number // ISO date or timestamp when ownership started
+  percentOwned?: number // 0..100
+  percentGainPerYear?: number // percent per year
 }
 
 function formatCurrency(n?: number) {
@@ -30,12 +33,28 @@ function pctString(n: number) {
   return `${n.toFixed(1)}%`
 }
 
+function formatDuration(start?: string | number) {
+  if (!start) return '—'
+  const s = typeof start === 'number' ? new Date(start) : new Date(start)
+  if (Number.isNaN(s.getTime())) return '—'
+  const now = new Date()
+  let years = now.getFullYear() - s.getFullYear()
+  let months = now.getMonth() - s.getMonth()
+  if (months < 0) { years -= 1; months += 12 }
+  const parts = [] as string[]
+  if (years > 0) parts.push(`${years}y`)
+  if (months > 0) parts.push(`${months}m`)
+  if (parts.length === 0) return '<1m'
+  return parts.join(' ')
+}
+
 export default function ApartmentCard({ property }: { property: Property }) {
   const price = property.price ?? 0
   const purchase = property.purchasePrice ?? 0
   const gain = price - purchase
   const pct = purchase > 0 ? (gain / purchase) * 100 : NaN
   const yieldPct = property.annualRent && price ? (property.annualRent / price) * 100 : NaN
+  const duration = formatDuration(property.ownershipStart)
 
   return (
     <article className="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
@@ -65,7 +84,7 @@ export default function ApartmentCard({ property }: { property: Property }) {
         </div>
 
         {/* Title overlay */}
-        <div className="absolute left-0 right-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+  <div className="absolute left-0 right-0 bottom-0 bg-linear-to-t from-black/60 to-transparent p-4">
           <h3 className="text-white text-lg font-bold truncate">{property.title || 'Untitled property'}</h3>
           <p className="text-sm text-gray-200 truncate">{property.neighborhood || ''}</p>
         </div>
@@ -96,21 +115,21 @@ export default function ApartmentCard({ property }: { property: Property }) {
             <div className="font-medium">{property.rooms ?? '—'}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-500">Baths</div>
-            <div className="font-medium">{property.bathrooms ?? '—'}</div>
+            <div className="text-xs text-gray-500">Owned</div>
+            <div className="font-medium">{property.percentOwned != null ? pctString(property.percentOwned) : '—'}</div>
           </div>
 
           <div>
-            <div className="text-xs text-gray-500">Floor</div>
-            <div className="font-medium">{property.floor ?? '—'}</div>
+            <div className="text-xs text-gray-500">Duration</div>
+            <div className="font-medium">{duration}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500">Gain / yr</div>
+            <div className="font-medium">{property.percentGainPerYear != null ? pctString(property.percentGainPerYear) : '—'}</div>
           </div>
           <div>
             <div className="text-xs text-gray-500">Built</div>
             <div className="font-medium">{property.yearBuilt ?? '—'}</div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-500">Energy</div>
-            <div className="font-medium">{property.energyClass ?? '—'}</div>
           </div>
         </div>
 

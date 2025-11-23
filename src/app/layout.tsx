@@ -32,8 +32,8 @@ export const metadata: Metadata = {
   referrer: "origin-when-cross-origin",
   themeColor: "#111827",
   colorScheme: "dark",
-  creator: "Team Bubu",
-  publisher: "Team Bubu",
+  creator: "Bubu.dev",
+  publisher: "Bubu.dev",
   robots: "index, follow",
   viewport: "width=device-width, initial-scale=1.0",
   manifest: "/site.webmanifest",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "rent2own",
     description: "Every payment brings you home!",
-    creator: "@Team Bubu",
+    creator: "@BubuDev",
   },
   category: "event",
 };
@@ -72,7 +72,7 @@ export default function RootLayout({
           <main className="flex-grow min-h-screen">{children}</main>
 
           <footer className="w-full py-6 text-center text-sm text-gray-400 mt-auto">
-            © {new Date().getFullYear()} Team Bubu
+            © {new Date().getFullYear()} Bubu.dev
           </footer>
 
           <ChatWidget />

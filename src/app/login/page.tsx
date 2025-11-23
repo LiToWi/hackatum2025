@@ -37,7 +37,12 @@ export default function LoginPage() {
                     onChange={e => setPassword(e.target.value)}
                     className="block w-full mb-4 p-2 border rounded"
                 />
-                <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded transition-transform duration-100 active:scale-95">Login</button>
+                <button
+                    type="submit"
+                    className="w-full py-2 bg-[#D67F31] hover:bg-[#bf6f2c] text-white rounded transition-all duration-150 active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#D67F31]/30"
+                >
+                    Login
+                </button>
                 {error && <p className="mt-2 text-red-600">{error}</p>}
             </form>
         </div>
