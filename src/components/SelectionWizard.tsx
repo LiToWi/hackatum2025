@@ -42,7 +42,7 @@ export default function SelectionWizard({
       <div className="bg-gray-900 p-3 rounded-lg">
         <div className="text-sm">{label}</div>
         {!editing ? (
-          <div className="text-pink-400 font-medium cursor-pointer" onClick={() => setEditing(true)}>{value}</div>
+          <div className="font-medium cursor-pointer text-[#D67F31]" onClick={() => setEditing(true)}>{value}</div>
         ) : (
           <div className="mt-2">
             <input
@@ -217,7 +217,7 @@ export default function SelectionWizard({
               value={rentingMonths}
               onChange={(e) => setRentingMonths(e.target.value === '' ? '' : Number(e.target.value))}
               placeholder="Months (e.g. 36)"
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D67F31]"
               ref={rentingRef}
             />
             <p className="text-xs text-gray-500">How many months do you plan to stay?</p>
@@ -238,7 +238,7 @@ export default function SelectionWizard({
                   setDesiredRooms(1)
                 }}
                 id="dwelling-single"
-                className={`p-4 rounded-lg text-left border transition-transform duration-150 ease-in-out hover:scale-105 hover:border-pink-400 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 ${dwellingSelection === 'single' ? 'border-pink-500 bg-gray-800' : 'border-gray-700 bg-gray-900'}`}
+                className={`p-4 rounded-lg text-left border transition-transform duration-150 ease-in-out hover:scale-105 hover:border-[#D67F31] hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#D67F31] ${dwellingSelection === 'single' ? 'border-[#D67F31] bg-gray-800' : 'border-gray-700 bg-gray-900'}`}
               >
                 <div className="font-semibold">Single apartment</div>
                 <div className="text-xs text-gray-400">Private place</div>
@@ -256,7 +256,7 @@ export default function SelectionWizard({
                     setDesiredRooms(n)
                   }}
                   id={`dwelling-${n}`}
-                  className={`p-4 rounded-lg text-left border transition-transform duration-150 ease-in-out hover:scale-105 hover:border-pink-400 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-500 ${dwellingSelection === n ? 'border-pink-500 bg-gray-800' : 'border-gray-700 bg-gray-900'}`}
+                  className={`p-4 rounded-lg text-left border transition-transform duration-150 ease-in-out hover:scale-105 hover:border-[#D67F31] hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-[#D67F31] ${dwellingSelection === n ? 'border-[#D67F31] bg-gray-800' : 'border-gray-700 bg-gray-900'}`}
                 >
                   <div className="font-semibold">Shared flat ({n})</div>
                   <div className="text-xs text-gray-400">{n} people</div>
@@ -275,7 +275,7 @@ export default function SelectionWizard({
               value={monthlyRent}
               onChange={(e) => setMonthlyRent(e.target.value === '' ? '' : Number(e.target.value))}
               placeholder="Monthly rent in EUR (e.g. 800)"
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D67F31]"
               ref={monthlyRentRef}
             />
           </div>
@@ -291,7 +291,7 @@ export default function SelectionWizard({
                 value={zip}
                 onChange={(e) => setZip(e.target.value)}
                 placeholder="ZIP (optional) e.g. 80331"
-                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#D67F31]"
                 ref={zipRef}
               />
 
@@ -345,7 +345,7 @@ export default function SelectionWizard({
               <EditableCard label="ZIP" value={zip || '—'} onSave={(v: string) => setZip(v)} inputType="text" />
               <div className="bg-gray-900 p-3 rounded-lg">
                 <div className="text-sm">Location range</div>
-                <div className="text-pink-400 font-medium">{locationMin} — {locationMax} / 5</div>
+                <div className="font-medium text-[#D67F31]">{locationMin} — {locationMax} / 5</div>
                 <div className="text-xs text-gray-400 mt-2">Preferred centrality range</div>
               </div>
             </div>
@@ -357,7 +357,8 @@ export default function SelectionWizard({
         <button
           onClick={back}
           type="button"
-          className="px-4 py-2 rounded-lg transition-colors bg-transparent text-pink-400 border border-pink-400 hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-pink-500"
+          className="px-4 py-2 rounded-lg transition-colors bg-transparent hover:bg-gray-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-[#D67F31] cursor-pointer"
+          style={{ color: '#D67F31', borderColor: '#D67F31' }}
         >
           Back
         </button>
@@ -367,7 +368,8 @@ export default function SelectionWizard({
           <button
             onClick={next}
             ref={nextButtonRef}
-            className="px-5 py-2 rounded-lg bg-pink-600 hover:bg-pink-500 text-white font-medium"
+            className="px-5 py-2 rounded-lg text-white font-medium cursor-pointer"
+            style={{ backgroundColor: '#D67F31' }}
           >
             {step === steps.length - 1 ? 'Finish' : 'Next'}
           </button>

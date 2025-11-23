@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   viewport: "width=device-width, initial-scale=1.0",
   manifest: "/site.webmanifest",
   icons: [
-    { rel: "icon", url: "/logo.svg", type: "image/svg+xml" },
+    { rel: "icon", url: "/logo.png", type: "image/svg+xml" },
     { rel: "apple-touch-icon", url: "/logo.svg" },
   ],
   openGraph: {

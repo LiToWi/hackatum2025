@@ -158,7 +158,7 @@ export default function HomePage() {
   return (
     <main className="flex flex-col items-center justify-center p-4 gap-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold font-serif">Welcome to <span className='orange'>ren</span><span className='text-gradient-orange-purple'>t2o</span><span className='blue'>wn</span></h1>
+        <h1 className="text-4xl font-bold font-serif">Welcome to <span className='orange'>ren</span><span className='text-gradient-orange-blue'>t2o</span><span className='blue'>wn</span></h1>
         <p className="mt-4 text-lg">
           where every payment brings you home!
         </p>

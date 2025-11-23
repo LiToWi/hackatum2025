@@ -69,11 +69,19 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
       meta.textContent = `${property.price} €/mo • ${property.sqm} m²`
 
       const btn = document.createElement('button')
-      btn.textContent = 'Interested ? Get an offer'
-      btn.className = 'px-3 py-2 bg-pink-600 text-white rounded-md text-sm'
-      btn.style.background = 'linear-gradient(90deg,#ff5fa2,#9b6bff)'
+      btn.textContent = 'Interested? Get an offer'
+      btn.className = 'px-3 py-2 rounded-md text-sm'
+      // solid orange background to match theme
+      btn.style.background = '#D67F31'
+      btn.style.border = 'none'
+      btn.style.color = '#ffffff'
+      btn.style.fontWeight = '600'
       btn.style.cursor = 'pointer'
+      btn.style.boxShadow = '0 4px 10px rgba(0,0,0,0.12)'
       btn.onclick = (e) => { e.stopPropagation(); if (onRequestOffer) onRequestOffer(property) }
+      // subtle hover effect
+      btn.addEventListener('mouseenter', () => { btn.style.filter = 'brightness(0.95)' })
+      btn.addEventListener('mouseleave', () => { btn.style.filter = 'none' })
 
       container.appendChild(title)
       container.appendChild(meta)
@@ -376,7 +384,7 @@ export const MapSection: React.FC<MapSectionProps> = ({ city, properties = [], f
         <div className="absolute right-6 bottom-6 z-50 pointer-events-auto">
           <button
             onClick={() => onLoadMore()}
-            className="px-5 py-3 bg-pink-600 text-white text-sm rounded-xl shadow-lg border border-pink-700 hover:bg-pink-500 focus:outline-none focus:ring-2 focus:ring-pink-300"
+            className="px-5 py-3 bg-[#D67F31] text-white text-sm rounded-xl shadow-lg border border-[#D67F31] hover:bg-[#bf6f2c] focus:outline-none focus:ring-2 focus:ring-[#D67F31] cursor-pointer"
           >
             Load more
           </button>

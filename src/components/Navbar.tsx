@@ -28,7 +28,7 @@ export default function Navbar() {
         {/* Left: Logo */}
         <Link href="/" className="flex items-center text-2xl font-bold tracking-tight hover-gradient-pink-purple transition">
           <span className="h-12 w-12 mr-2 relative">
-            <Image src="/logo.svg" alt="Logo" fill className="object-contain" />
+            <Image src="/logo.png" alt="Logo" fill className="object-contain" />
           </span>
           <span className="hover-gradient-pink-purple transition">rent2own</span>
         </Link>
@@ -62,7 +62,7 @@ export default function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="hidden md:inline-block px-6 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-medium transition-all"
+              className="hidden md:inline-block px-6 py-2 rounded-lg bg-[#1ad0f0] hover:bg-[#14c7d9] text-black font-medium transition-all"
             >
               LOGIN
             </Link>
@@ -82,32 +82,34 @@ export default function Navbar() {
       {/* Mobile menu */}
       {isOpen && (
         <div className="md:hidden px-4 pb-4 space-y-2">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="block hover-gradient-pink-purple transition"
             onClick={closeMobileMenu}
           >
             Home
           </Link>
-          
+
           {session && (
-            <Link 
-              href="/dashboard/user" 
+            <Link
+              href="/dashboard/user"
               className="block hover-gradient-pink-purple transition"
               onClick={closeMobileMenu}
             >
               Dashboard
             </Link>
           )}
+
           {session && (
-            <Link 
-              href={`/tables/${session.user?.name}`} 
-              className="hover-gradient-pink-purple transition"
+            <Link
+              href={`/tables/${session.user?.name}`}
+              className="block hover-gradient-pink-purple transition"
               onClick={closeMobileMenu}
             >
               My Party
             </Link>
           )}
+
           {session ? (
             <button
               onClick={handleLogout}
@@ -116,9 +118,9 @@ export default function Navbar() {
               LOGOUT ({session.user?.name})
             </button>
           ) : (
-            <Link 
-              href="/login" 
-              className="block w-full text-left px-6 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-medium transition-all"
+            <Link
+              href="/login"
+              className="block w-full text-left px-6 py-2 rounded-lg bg-[#1ad0f0] hover:bg-[#14c7d9] text-black font-medium transition-all"
               onClick={closeMobileMenu}
             >
               LOGIN
